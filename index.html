@@ -22,47 +22,6 @@
   --side-w: 240px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #202125;
-    --tx: #e8e8ed;
-    --mu: #8c8d98;
-    --ac: #9c84ff;
-    --ac-glow: rgba(156, 132, 255, 0.25);
-    --ok: #34a86e;
-    --wr: #e08b2c;
-    --er: #e04a62;
-    --sh1: #16171a;
-    --sh2: #2a2b31;
-  }
-}
-
-:root[data-theme="dark"] {
-  --bg: #202125;
-  --tx: #e8e8ed;
-  --mu: #8c8d98;
-  --ac: #9c84ff;
-  --ac-glow: rgba(156, 132, 255, 0.25);
-  --ok: #34a86e;
-  --wr: #e08b2c;
-  --er: #e04a62;
-  --sh1: #16171a;
-  --sh2: #2a2b31;
-}
-
-:root[data-theme="light"] {
-  --bg: #e4e4e8;
-  --tx: #2d2d32;
-  --mu: #7c7c86;
-  --ac: #6d4de0;
-  --ac-glow: rgba(109, 77, 224, 0.25);
-  --ok: #238558;
-  --wr: #c46e16;
-  --er: #c2334b;
-  --sh1: #c2c2c8;
-  --sh2: #ffffff;
-}
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -146,9 +105,6 @@ html, body {
   letter-spacing: .08em;
   color: #2b2b30;
   font-family: Inter, system-ui, sans-serif;
-}
-[data-theme="dark"] .brand-text {
-  color: #e6e6ec;
 }
 .brand-text span {
   color: #6842ff;
@@ -844,10 +800,10 @@ td:last-child { border-radius: 0 16px 16px 0; }
   .top-bar {
     height: auto;
     display: grid;
-    grid-template-columns: auto auto 1fr auto auto;
+    grid-template-columns: auto auto 1fr auto;
     grid-template-areas:
-      "menu badge spacer theme av"
-      "search search search search search";
+      "menu badge spacer av"
+      "search search search search";
     gap: 8px 10px;
     align-items: center;
     margin-bottom: 6px;
@@ -871,10 +827,6 @@ td:last-child { border-radius: 0 16px 16px 0; }
     grid-area: badge;
     font-size: 9px;
     padding: 5px 8px;
-  }
-  .top-bar #theme {
-    grid-area: theme;
-    padding: 6px 12px;
   }
   .top-bar #notif-btn {
     display: none;
@@ -1066,12 +1018,6 @@ td:last-child { border-radius: 0 16px 16px 0; }
   .g5 {
     grid-template-columns: 1fr;
   }
-  .top-bar {
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas:
-      "badge theme av"
-      "search search search";
-  }
   .card {
     padding: 12px;
   }
@@ -1110,7 +1056,6 @@ td:last-child { border-radius: 0 16px 16px 0; }
       <button class="mobile-menu-btn" onclick="toggleMobileSidebar(true)" title="Open Menu">☰</button>
       <span class="badge">● SUPER ADMIN</span>
       <input class="search" id="global-search" placeholder="Search resources, records, directives…">
-      <button class="pill" id="theme" title="Toggle Theme">☾</button>
       <button class="pill" id="notif-btn" title="Notifications">🔔 <span id="notif-count" style="font-size:11px;color:var(--ac)">0</span></button>
       <div class="av" title="HynaStudio Admin"><img src="assets/hyna_logo.jpg" alt="HynaStudio Admin"></div>
     </header>
@@ -1945,15 +1890,6 @@ function archiveProject() {
     toast("Project workspace archived");
   }
 }
-
-/* Theme Toggle */
-$("#theme").onclick = () => {
-  const r = document.documentElement;
-  const isDark = r.dataset.theme ? r.dataset.theme === "dark" : window.matchMedia("(prefers-color-scheme:dark)").matches;
-  r.dataset.theme = isDark ? "light" : "dark";
-  $("#theme").textContent = isDark ? "☾" : "☀";
-  toast(`Theme set to ${r.dataset.theme}`);
-};
 
 /* Global Search */
 $("#global-search").onkeydown = (e) => {
