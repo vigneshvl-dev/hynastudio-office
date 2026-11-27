@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>HynaStudio – Report Manager</title>
+  <style>
+    :root {
+      --bg: #e4e4e8;
+      --tx: #2d2d32;
+      --mu: #7c7c86;
+      --ac: #6d4de0;
+      --ac-glow: rgba(109, 77, 224, 0.25);
+      --ok: #238558;
+      --wr: #c46e16;
+      --er: #c2334b;
+      --sh1: #c2c2c8;
+      --sh2: #ffffff;
+      --o: 6px 6px 14px var(--sh1), -6px -6px 14px var(--sh2);
+      --os: 3px 3px 8px var(--sh1), -3px -3px 8px var(--sh2);
+      --i: inset 3px 3px 7px var(--sh1), inset -3px -3px 7px var(--sh2);
+      --side-w: 240px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--tx);
+      font: 14px/1.4 Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    /* App Full Screen Layout */
+    .app {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      padding: 16px;
+      gap: 18px;
+    }
+
+    /* Sidebar: Perfectly fitted and scrollable */
+    .side {
+      width: var(--side-w);
+      flex-shrink: 0;
+      height: calc(100vh - 32px);
+      border-radius: 24px;
+      box-shadow: var(--o);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      padding: 18px 12px;
+      overflow: hidden;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 4px 6px 16px;
+      border-bottom: 1px solid rgba(124, 124, 134, 0.15);
+      flex-shrink: 0;
+    }
+
+    .brand-frame {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      box-shadow: 4px 4px 10px var(--sh1), -4px -4px 10px var(--sh2);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 3px;
+      position: relative;
+    }
+
+    .brand-frame::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: 50%;
+      box-shadow: inset 2px 2px 5px var(--sh1), inset -2px -2px 5px var(--sh2);
+      pointer-events: none;
+    }
+
+    .brand-logo-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .brand-text {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: #2b2b30;
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    .brand-text span {
+      color: #6842ff;
+    }
+
+    .nav-container {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 2px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .nav-container::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .nav-container::-webkit-scrollbar-thumb {
+      background: var(--sh1);
+      border-radius: 4px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 1.5px solid transparent;
+      background: transparent;
+      color: var(--mu);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 100%;
+      white-space: nowrap;
+    }
+
+    .nav:hover {
+      color: var(--tx);
+      background: rgba(124, 124, 134, 0.05);
+    }
+
+    .nav.on {
+      color: #6842ff;
+      background: var(--bg);
+      border: 1.8px solid #2365e8;
+      box-shadow: 3px 3px 8px var(--sh1), -3px -3px 8px var(--sh2);
+      font-weight: 700;
+    }
+
+    .nav span {
+      width: 18px;
+      text-align: center;
+      font-size: 15px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .side-footer {
+      flex-shrink: 0;
+      padding-top: 12px;
+      border-top: 1px solid rgba(124, 124, 134, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Main Workspace Viewport */
+    .main {
+      flex: 1;
+      min-width: 0;
+      height: calc(100vh - 32px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top bar: Fixed height */
+    .top-bar {
+      flex-shrink: 0;
+      height: 54px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .search {
+      flex: 1;
+      max-width: 480px;
+      border-radius: 999px;
+      box-shadow: var(--i);
+      border: 0;
+      background: var(--bg);
+      color: var(--tx);
+      padding: 10px 18px;
+      font: inherit;
+      outline: 0;
+    }
+
+    .pill {
+      border-radius: 999px;
+      box-shadow: var(--os);
+      padding: 8px 16px;
+      font-weight: 600;
+      border: 0;
+      background: var(--bg);
+      color: var(--tx);
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: box-shadow .15s ease, transform .05s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .pill:hover {
+      color: var(--tx);
+    }
+
+    .pill:active {
+      box-shadow: var(--i);
+      transform: translateY(1px);
+    }
+
+    .pill.p {
+      color: var(--ac);
+    }
+
+    .pill.ok {
+      color: var(--ok);
+    }
+
+    .pill.wr {
+      color: var(--wr);
+    }
+
+    .pill.er {
+      color: var(--er);
+    }
+
+    .pill.on {
+      box-shadow: var(--i);
+      color: var(--ac);
+    }
+
+    .av {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      box-shadow: var(--o);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: var(--ac);
+      user-select: none;
+      flex-shrink: 0;
+      overflow: hidden;
+      padding: 3px;
+      background: var(--bg);
+    }
+
+    .av img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .badge {
+      font: 700 10px/1 ui-monospace, monospace;
+      letter-spacing: .08em;
+      color: var(--ac);
+      padding: 6px 10px;
+      border-radius: 999px;
+      box-shadow: var(--i);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .mobile-menu-btn,
+    .mobile-close-btn,
+    .sidebar-backdrop {
+      display: none;
+    }
+
+    /* Scrollable Content Container */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 4px;
+      padding-bottom: 20px;
+    }
+
+    .content-area::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .content-area::-webkit-scrollbar-thumb {
+      background: var(--sh1);
+      border-radius: 4px;
+    }
+
+    /* Section Headers & Cards */
+    .hd {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 26px;
+      letter-spacing: -.02em;
+      font-weight: 800;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .sub {
+      color: var(--mu);
+      font-size: 13px;
+    }
+
+    .card {
+      border-radius: 24px;
+      box-shadow: var(--o);
+      padding: 20px;
+      background: var(--bg);
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .g5 {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .g2 {
+      grid-template-columns: 2fr 1fr;
+    }
+
+    .stat small {
+      color: var(--mu);
+      font-weight: 700;
+      letter-spacing: .08em;
+      font-size: 11px;
+    }
+
+    .stat b {
+      display: block;
+      font-size: 28px;
+      margin: 6px 0 2px;
+    }
+
+    .ic {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      box-shadow: var(--os);
+      display: grid;
+      place-items: center;
+      float: right;
+      font-style: normal;
+    }
+
+    .ok {
+      color: var(--ok);
+    }
+
+    .wr {
+      color: var(--wr);
+    }
+
+    .er {
+      color: var(--er);
+    }
+
+    .empty {
+      padding: 36px 16px;
+      text-align: center;
+      color: var(--mu);
+    }
+
+    .empty b {
+      display: block;
+      color: var(--tx);
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      box-shadow: var(--os);
+      margin-top: 12px;
+      background: var(--bg);
+    }
+
+    .row .ic {
+      float: none;
+      flex: none;
+    }
+
+    .row .gr {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .row .gr div:first-child {
+      font-weight: 700;
+    }
+
+    .tag {
+      font: 700 10px ui-monospace, monospace;
+      padding: 4px 9px;
+      border-radius: 999px;
+      box-shadow: var(--i);
+      color: var(--ac);
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    .tag.ok {
+      color: var(--ok);
+    }
+
+    .tag.er {
+      color: var(--er);
+    }
+
+    .tag.wr {
+      color: var(--wr);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .scroll {
+      overflow-x: auto;
+    }
+
+    .scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .scroll::-webkit-scrollbar-thumb {
+      background: var(--sh1);
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+      min-width: 680px;
+    }
+
+    th {
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--mu);
+      text-align: left;
+      padding: 0 14px;
+    }
+
+    td {
+      padding: 12px 14px;
+      background: var(--bg);
+      box-shadow: 0 4px 6px -4px var(--sh1);
+      vertical-align: middle;
+    }
+
+    td:first-child {
+      border-radius: 16px 0 0 16px;
+    }
+
+    td:last-child {
+      border-radius: 0 16px 16px 0;
+    }
+
+    .nm {
+      font-weight: 700;
+    }
+
+    .nm small {
+      display: block;
+      color: var(--mu);
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    .field {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      flex: 1;
+      min-width: 140px;
+      border: 0;
+      border-radius: 999px;
+      box-shadow: var(--i);
+      background: var(--bg);
+      color: var(--tx);
+      padding: 10px 16px;
+      font: inherit;
+      outline: 0;
+    }
+
+    .field select {
+      cursor: pointer;
+    }
+
+    .hide {
+      display: none !important;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 28px;
+      box-shadow: var(--o);
+      background: var(--bg);
+      padding: 24px;
+    }
+
+    /* Mobile Neumorphic Swipe Bottom Sheet Popup */
+    .swipe-sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .swipe-sheet-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .swipe-sheet {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg);
+      border-radius: 36px 36px 0 0;
+      box-shadow: 0 -10px 30px var(--sh1), 0 -2px 10px var(--sh2);
+      padding: 18px 22px calc(24px + env(safe-area-inset-bottom, 0px));
+      transform: translateY(105%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .swipe-sheet-overlay.open .swipe-sheet {
+      transform: translateY(0);
+    }
+
+    .sheet-drag-handle {
+      width: 42px;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--sh1);
+      box-shadow: var(--i);
+      align-self: center;
+      margin-bottom: 4px;
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sheet-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sheet-badge-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: var(--bg);
+      box-shadow: var(--os);
+      display: grid;
+      place-items: center;
+      color: var(--ac);
+      font-size: 18px;
+    }
+
+    .sheet-badge-icon.purple {
+      background: linear-gradient(135deg, rgba(109, 77, 224, 0.18), rgba(109, 77, 224, 0.06));
+      color: var(--ac);
+    }
+
+    .sheet-title {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .sheet-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 0;
+      background: var(--bg);
+      box-shadow: var(--os);
+      color: var(--mu);
+      font-size: 14px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: box-shadow 0.15s;
+    }
+
+    .sheet-close:active {
+      box-shadow: var(--i);
+    }
+
+    /* Card list inside popup */
+    .sheet-inset-box {
+      background: var(--bg);
+      box-shadow: var(--i);
+      border-radius: 24px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sheet-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .sheet-label {
+      color: var(--mu);
+      font-weight: 600;
+    }
+
+    .sheet-val {
+      font-weight: 700;
+      color: var(--tx);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sheet-badge-pill {
+      border-radius: 999px;
+      padding: 5px 12px;
+      box-shadow: var(--os);
+      background: var(--bg);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .sheet-badge-pill.dot-green::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 3px;
+      background: #238558;
+    }
+
+    .sheet-badge-pill.dot-orange::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 3px;
+      background: #e08b2c;
+    }
+
+    .sheet-total-block {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 6px 4px 2px;
+    }
+
+    .sheet-total-val {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    /* Neumorphic Swipe Track */
+    .swipe-track-container {
+      margin-top: 4px;
+      position: relative;
+      width: 100%;
+      height: 60px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #6243d6, #7451eb);
+      box-shadow: 4px 4px 12px rgba(109, 77, 224, 0.35), inset 2px 2px 5px rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      user-select: none;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .swipe-track-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      background: linear-gradient(90deg, #238558, #34a86e);
+      transition: width 0.15s ease;
+      pointer-events: none;
+    }
+
+    .swipe-track-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.92);
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .swipe-knob {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.22), -1px -1px 4px rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6d4de0;
+      font-size: 20px;
+      font-weight: 800;
+      cursor: grab;
+      position: relative;
+      z-index: 2;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .swipe-knob:active {
+      cursor: grabbing;
+    }
+
+    .swipe-knob.success {
+      background: #238558;
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(35, 133, 88, 0.6);
+    }
+
+    /* Only enable bottom sheet slide up on mobile screen viewports (<= 900px) */
+    @media (min-width: 901px) {
+      .swipe-sheet-overlay {
+        align-items: center;
+      }
+
+      .swipe-sheet {
+        border-radius: 36px;
+        transform: translateY(30px) scale(0.96);
+        box-shadow: var(--o);
+        max-height: 90vh;
+      }
+
+      .swipe-sheet-overlay.open .swipe-sheet {
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: var(--bg);
+      box-shadow: var(--o);
+      font-weight: 600;
+      color: var(--tx);
+      z-index: 10000;
+      transition: opacity .3s, transform .3s;
+    }
+
+    /* Responsive Mobile & Tablet Alignment */
+    @media(max-width: 900px) {
+
+      html,
+      body {
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      .app {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        padding: 10px 12px;
+        gap: 12px;
+        overflow: visible;
+        width: 100%;
+        max-width: 100vw;
+      }
+
+      /* Backdrop Overlay for Mobile Left Sidebar Drawer */
+      .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(4px);
+        z-index: 1200;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .sidebar-backdrop.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* Left Side Drawer on Mobile */
+      .side {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: min(290px, 82vw);
+        height: 100vh;
+        height: 100dvh;
+        border-radius: 0 28px 28px 0;
+        padding: calc(18px + env(safe-area-inset-top, 0px)) 16px calc(18px + env(safe-area-inset-bottom, 0px)) 16px;
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.25);
+        z-index: 1300;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: var(--bg);
+        transform: translateX(-105%);
+        transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+      }
+
+      .side.open {
+        transform: translateX(0);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 4px 4px 14px 4px;
+        border-bottom: 1px solid rgba(124, 124, 134, 0.15);
+        flex-shrink: 0;
+      }
+
+      .brand-frame {
+        width: 42px;
+        height: 42px;
+        padding: 3px;
+      }
+
+      .brand-text {
+        font-size: 16px;
+      }
+
+      .mobile-close-btn {
+        display: grid !important;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 0;
+        background: var(--bg);
+        box-shadow: var(--os);
+        color: var(--mu);
+        margin-left: auto;
+        cursor: pointer;
+        place-items: center;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      /* Vertical Nav inside Drawer */
+      .nav-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin-top: 6px;
+        gap: 7px;
+        padding: 2px 4px 10px 2px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        font-size: 14px;
+        border-radius: 999px;
+        width: 100%;
+        white-space: nowrap;
+        text-align: left;
+      }
+
+      .nav.on {
+        border: 1.8px solid #2365e8;
+        color: #6842ff;
+        box-shadow: 3px 3px 8px var(--sh1), -3px -3px 8px var(--sh2);
+      }
+
+      .nav span {
+        width: 20px;
+        font-size: 16px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .side-footer {
+        display: flex;
+        flex-shrink: 0;
+        padding-top: 12px;
+        border-top: 1px solid rgba(124, 124, 134, 0.15);
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Main Viewport & Top Actions */
+      .main {
+        height: auto;
+        flex: none;
+        overflow: visible;
+        width: 100%;
+        gap: 14px;
+      }
+
+      .top-bar {
+        height: auto;
+        display: grid;
+        grid-template-columns: auto auto 1fr auto;
+        grid-template-areas:
+          "menu badge spacer av"
+          "search search search search";
+        gap: 8px 10px;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+
+      .mobile-menu-btn {
+        display: inline-flex !important;
+        grid-area: menu;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        box-shadow: var(--os);
+        border: 0;
+        background: var(--bg);
+        color: var(--tx);
+        font-size: 16px;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .top-bar .badge {
+        grid-area: badge;
+        font-size: 9px;
+        padding: 5px 8px;
+      }
+
+      .top-bar #notif-btn {
+        display: none;
+      }
+
+      .top-bar .av {
+        grid-area: av;
+        width: 34px;
+        height: 34px;
+        padding: 2px;
+      }
+
+      .top-bar .search {
+        grid-area: search;
+        max-width: 100%;
+        width: 100%;
+        padding: 9px 14px;
+        font-size: 13px;
+      }
+
+      .content-area {
+        overflow: visible;
+        padding-right: 0;
+        padding-bottom: 24px;
+      }
+
+      /* Section Headers & Action Bars */
+      .hd {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .hd h1 {
+        font-size: 20px;
+        line-height: 1.25;
+      }
+
+      .hd .sub {
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      .hd .top {
+        width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        gap: 8px;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .hd .top::-webkit-scrollbar {
+        display: none;
+      }
+
+      .hd .top .pill {
+        flex-shrink: 0;
+        padding: 7px 12px;
+        font-size: 12px;
+      }
+
+      /* Grids: 2-column on mobile, single column on narrow mobile */
+      .grid {
+        gap: 12px;
+      }
+
+      .g5 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .g2 {
+        grid-template-columns: 1fr;
+      }
+
+      .stat {
+        padding: 14px;
+      }
+
+      .stat b {
+        font-size: 22px;
+        margin: 4px 0 2px;
+      }
+
+      .stat small {
+        font-size: 10px;
+      }
+
+      .stat .ic {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+      }
+
+      /* Cards & Lists */
+      .card {
+        padding: 14px;
+        border-radius: 20px;
+      }
+
+      .row {
+        padding: 10px 12px;
+        gap: 10px;
+        border-radius: 16px;
+        flex-wrap: wrap;
+      }
+
+      .row .av {
+        width: 32px;
+        height: 32px;
+        font-size: 11px;
+      }
+
+      .row .gr {
+        min-width: 140px;
+      }
+
+      .tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 6px;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tabs .pill {
+        flex-shrink: 0;
+        padding: 7px 12px;
+        font-size: 12px;
+      }
+
+      /* Tables: Card-friendly scroll view */
+      .scroll {
+        -webkit-overflow-scrolling: touch;
+        border-radius: 16px;
+      }
+
+      table {
+        min-width: 580px;
+        border-spacing: 0 8px;
+      }
+
+      th,
+      td {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+
+      td .pill {
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+
+      /* Forms & Field Stacking */
+      .field {
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        min-width: 0;
+        padding: 9px 14px;
+        font-size: 13px;
+      }
+
+      /* Mobile Swipe Popup */
+      .swipe-sheet-overlay {
+        align-items: flex-end;
+      }
+
+      .swipe-sheet {
+        border-radius: 26px 26px 0 0;
+        padding: 14px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+        max-height: 85vh;
+        gap: 12px;
+      }
+
+      .sheet-title {
+        font-size: 17px;
+      }
+
+      .sheet-badge-pill {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 12px;
+        padding: 4px 10px;
+      }
+
+      .sheet-total-val {
+        font-size: 26px;
+      }
+
+      .swipe-track-container {
+        height: 54px;
+      }
+
+      .swipe-knob {
+        width: 46px;
+        height: 46px;
+        font-size: 18px;
+      }
+
+      .swipe-track-label {
+        font-size: 13px;
+      }
+    }
+
+    @media(max-width: 420px) {
+      .g5 {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Mobile Sidebar Backdrop -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleMobileSidebar(false)"></div>
+
+  <div class="app">
+    <!-- Sidebar (Left Side Drawer on mobile, Left Sidebar on desktop) -->
+    <aside class="side" id="app-sidebar">
+      <div class="brand">
+        <div class="brand-frame">
+          <img class="brand-logo-img" src="assets/hyna_logo.jpg" alt="HynaStudio Logo">
+        </div>
+        <div class="brand-text">HYNA<span>STUDIO</span></div>
+        <button class="mobile-close-btn" onclick="toggleMobileSidebar(false)" title="Close Navigation">✕</button>
+      </div>
+      <div class="nav-container" id="nav"></div>
+      <div class="side-footer">
+        <div class="av" style="width:34px;height:34px"><img src="assets/hyna_logo.jpg" alt="HynaStudio"></div>
+        <div class="nm" style="font-size:12px">
+          HynaStudio
+          <small style="font-size:10px">Enterprise Core</small>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Viewport -->
+    <main class="main">
+      <!-- Top Fixed Bar -->
+      <header class="top-bar">
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar(true)" title="Open Menu">☰</button>
+        <span class="badge">● SUPER ADMIN</span>
+        <input class="search" id="global-search" placeholder="Search resources, records, directives…">
+        <button class="pill" id="notif-btn" title="Notifications">🔔 <span id="notif-count"
+            style="font-size:11px;color:var(--ac)">0</span></button>
+        <div class="av" title="HynaStudio Admin"><img src="assets/hyna_logo.jpg" alt="HynaStudio Admin"></div>
+      </header>
+
+      <!-- Content Area (Scrolls independently within viewport) -->
+      <div class="content-area">
+
+        <!-- SECTION: Dashboard -->
+        <section id="v-dashboard">
+          <div class="hd">
+            <div>
+              <h1>Command Center <span class="badge">EXECUTIVE MODE</span></h1>
+              <div class="sub" id="live-time">Operating System • Core Operational</div>
+            </div>
+            <div class="top">
+              <button class="pill p" onclick="openVerifyAttendanceSwipe()">◷ Attendance</button>
+              <button class="pill" onclick="openLeaveModal()">▤ Apply Leave</button>
+              <button class="pill p" onclick="openBroadcastModal()">+ Broadcast</button>
+            </div>
+          </div>
+
+          <div class="grid g5">
+            <div class="card stat"><span class="ic">👥</span><small>HEADCOUNT</small><b id="stat-headcount">0</b><span
+                class="sub" id="stat-div">0 Divisions</span></div>
+            <div class="card stat"><span class="ic ok">◷</span><small>PRESENT</small><b id="stat-present">0</b><span
+                class="ok sub" id="stat-present-rate">0.0% rate</span></div>
+            <div class="card stat"><span class="ic wr">▤</span><small>ON LEAVE</small><b id="stat-leave">0</b><span
+                class="sub">Active Leaves</span></div>
+            <div class="card stat"><span class="ic">✓</span><small>APPROVALS</small><b>0</b><span class="sub">0
+                Pending</span></div>
+            <div class="card stat"><span class="ic er">◎</span><small>HELPDESK</small><b>0</b><span class="sub">0 High
+                Pri</span></div>
+          </div>
+
+          <div class="grid g2" style="margin-top:20px">
+            <div class="grid">
+              <div class="card">
+                <div class="hd">
+                  <div>
+                    <h2>Action Required</h2>
+                    <div class="sub">Pending items awaiting review and executive sign-off</div>
+                  </div>
+                  <span class="tag">0 TOTAL</span>
+                </div>
+                <div class="empty">
+                  <b class="ok">✓ All queues cleared</b>
+                  No pending requests or operational blocks found.
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="hd">
+                  <div>
+                    <h2>Bulletins &amp; Directives</h2>
+                    <div class="sub">Official releases, corporate protocols, and guidelines</div>
+                  </div>
+                  <button class="pill p" onclick="openBroadcastModal()">+ New Bulletin</button>
+                </div>
+                <div id="bulletin-list">
+                  <div class="empty" id="bulletin-empty">
+                    <b>No active bulletins</b>
+                    Publish directives and announcements to the entire team.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid" style="align-content:start">
+              <div class="card">
+                <div class="hd">
+                  <h2>Live Pulse</h2>
+                  <button class="pill p" onclick="toast('Pulse log refreshed')">Refresh</button>
+                </div>
+                <div class="empty">All services and systems operational</div>
+              </div>
+              <div class="card">
+                <div class="hd">
+                  <h2>Celebrations &amp; Milestones</h2>
+                </div>
+                <div class="empty">No scheduled events for this cycle</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: Projects -->
+        <section id="v-projects" class="hide">
+          <div class="hd">
+            <div>
+              <h1>Project Hub</h1>
+              <div class="sub">Track production sprints, roadmap milestones, and technical resources.</div>
+            </div>
+            <button class="pill p" onclick="openNewProjectModal()">+ New Project</button>
+          </div>
+
+          <div id="project-container">
+            <div class="card" id="active-project-card">
+              <div class="hd">
+                <div>
+                  <h2><span class="tag" id="proj-tag">PRJ-01</span> <span id="proj-title">Core Platform
+                      Architecture</span></h2>
+                  <div class="sub" id="proj-desc">Next-generation enterprise system and core infrastructure engineering.
+                  </div>
+                </div>
+                <div class="top">
+                  <span class="pill" id="proj-lead">Lead: Engineering Lead</span>
+                  <span class="pill ok">⟳ Live Sync</span>
+                  <button class="pill er" onclick="archiveProject()">Archive</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="tabs" style="margin:20px 0" id="ptabs"></div>
+            <div id="pbody"></div>
+          </div>
+        </section>
+
+        <!-- SECTION: Employees -->
+        <section id="v-employees" class="hide">
+          <div class="hd">
+            <div>
+              <h1>Staff Directory</h1>
+              <div class="sub">Manage active personnel, organizational hierarchy, reporting leads, and assignments.
+              </div>
+            </div>
+            <div class="top">
+              <button class="pill on" id="emp-tab-tbl">Table View</button>
+              <button class="pill" id="emp-tab-crd">Card View</button>
+              <button class="pill p" onclick="openAddEmpModal()">+ Add Employee</button>
+            </div>
+          </div>
+
+          <div class="tabs" style="margin-bottom:18px">
+            <button class="pill on" style="box-shadow:var(--i)">Active Directory · <span
+                id="emp-active-count">0</span></button>
+          </div>
+
+          <div class="card scroll" id="emp-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>EMPLOYEE</th>
+                  <th>DEPARTMENT</th>
+                  <th>EMAIL</th>
+                  <th>STATUS</th>
+                  <th>JOINED</th>
+                  <th>MANAGER</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="emp"></tbody>
+            </table>
+            <div id="emp-empty-table" class="empty hide">
+              <b>Directory is empty</b>
+              Click "+ Add Employee" to add team members to HynaStudio.
+            </div>
+          </div>
+          <div id="emp-cards-wrapper" class="grid g5 hide" style="margin-top:20px"></div>
+        </section>
+
+        <!-- SECTION: Attendance -->
+        <section id="v-attendance" class="hide">
+          <div class="hd">
+            <div>
+              <h1>Attendance Registry</h1>
+              <div class="sub">Audit presence, shift adherence, time allocation, and verify regularisations.</div>
+            </div>
+            <div class="top">
+              <button class="pill p" onclick="openVerifyAttendanceSwipe()">✓ Verify Attendance</button>
+            </div>
+          </div>
+
+          <div class="card hd" style="align-items:center">
+            <div>
+              <h2>Standard Shift Login Policy <span class="tag" id="shift-policy-tag">EXPECTED LOGIN: 09:00 AM</span>
+              </h2>
+              <div class="sub">Check-ins on or before this time are logged On-Time; arrivals after are tagged Delayed.
+              </div>
+            </div>
+            <div class="top">
+              <input class="search" id="shift-time-val" value="09:00 AM" style="flex:none;width:130px">
+              <button class="pill p" onclick="updateShiftTime()">Update Shift</button>
+            </div>
+          </div>
+
+          <div class="grid g5" style="margin:20px 0">
+            <div class="card stat"><small>STAFF PRESENT</small><b class="ok" id="att-present-count">0</b><span
+                class="sub">clocked in today</span></div>
+            <div class="card stat"><small>STAFF ABSENT</small><b class="er" id="att-absent-count">0</b><span
+                class="er sub">pending clock-in</span></div>
+            <div class="card stat"><small>ON-TIME ARRIVALS</small><b id="att-ontime-count">0</b><span
+                class="ok sub">standard arrival</span></div>
+            <div class="card stat"><small>DELAYED ARRIVALS</small><b id="att-delayed-count">0</b><span
+                class="wr sub">after shift cutoff</span></div>
+          </div>
+
+          <div class="card">
+            <div class="hd">
+              <div>
+                <h2>Today's Shift Attendance Feed</h2>
+                <div class="sub">Real-time attendance record of active staff members.</div>
+              </div>
+            </div>
+            <div id="att"></div>
+            <div id="att-empty" class="empty hide">
+              <b>No staff records found</b>
+              Add staff in the directory to begin tracking shift logs.
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: Payroll -->
+        <section id="v-payroll" class="hide">
+          <div class="hd">
+            <div>
+              <h1>Payroll &amp; Compensation</h1>
+              <div class="sub">Oversee compensation packages, bonus allowances, and track disbursement disbursements.
+              </div>
+            </div>
+          </div>
+
+          <div class="grid g5" style="margin-bottom:20px">
+            <div class="card stat"><span class="ic">$</span><small>MONTHLY BUDGET</small><b id="pay-total">₹0</b><span
+                class="sub">Base Package Total</span></div>
+            <div class="card stat"><span class="ic ok">✓</span><small>DISBURSED (PAID)</small><b class="ok"
+                id="pay-disbursed">₹0</b><span class="sub" id="pay-disbursed-sub">0 cleared</span></div>
+            <div class="card stat"><span class="ic wr">◷</span><small>PENDING</small><b class="wr"
+                id="pay-pending">₹0</b><span class="sub" id="pay-pending-sub">0 pending</span></div>
+            <div class="card stat"><span class="ic">🎁</span><small>BONUSES ALLOCATED</small><b
+                id="pay-bonus">₹0</b><span class="sub">Cycle incentives</span></div>
+          </div>
+
+          <div class="card scroll">
+            <div class="hd">
+              <h2>Staff Compensation Roster</h2>
+              <span class="tag" id="pay-count-tag">0 Staff Members</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>EMPLOYEE</th>
+                  <th>ANNUAL CTC</th>
+                  <th>MONTHLY BASE</th>
+                  <th>BONUS</th>
+                  <th>NET PAYOUT</th>
+                  <th>STATUS</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="pay"></tbody>
+            </table>
+            <div id="pay-empty" class="empty hide">
+              <b>No payroll data</b>
+              Staff members added to the directory will automatically populate here.
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: Leaves -->
+        <section id="v-leaves" class="hide">
+          <div class="hd">
+            <div>
+              <h1>Leave Management</h1>
+              <div class="sub">Adjudicate leave applications, track balances, and manage team schedules.</div>
+            </div>
+            <button class="pill p" onclick="openLeaveModal()">+ Apply Leave</button>
+          </div>
+          <div class="card">
+            <div class="empty">
+              <b>No active leave requests</b>
+              Staff leave submissions will be listed here for approval.
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: Generic / Other Modules -->
+        <section id="v-other" class="hide">
+          <div class="card empty" style="margin-top:20px">
+            <h1 id="otn" style="margin-bottom:8px">Module</h1>
+            <div class="sub">Module configured and ready in HynaStudio enterprise suite.</div>
+            <button class="pill p" style="margin-top:16px" onclick="go('dashboard','Dashboard')">Return to Command
+              Center</button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Container -->
+  <div id="modal-layer" class="modal-overlay hide" onclick="if(event.target===this) closeModal()">
+    <div class="modal-card" id="modal-box"></div>
+  </div>
+
+  <!-- Mobile Neumorphic Swipe Bottom Sheet Popup -->
+  <div id="swipe-sheet-layer" class="swipe-sheet-overlay" onclick="if(event.target===this) closeSwipeSheet()">
+    <div class="swipe-sheet" id="swipe-sheet-card">
+      <div class="sheet-drag-handle"></div>
+      <div class="sheet-header">
+        <div class="sheet-title-group">
+          <div class="sheet-badge-icon purple" id="sheet-icon">◉</div>
+          <div class="sheet-title" id="sheet-title">Pay in full</div>
+        </div>
+        <button class="sheet-close" onclick="closeSwipeSheet()" title="Close">✕</button>
+      </div>
+
+      <!-- Inset Neumorphic Data List -->
+      <div class="sheet-inset-box" id="sheet-details-box">
+        <!-- Dynamic Rows -->
+      </div>
+
+      <!-- Total Display -->
+      <div class="sheet-total-block" id="sheet-total-block">
+        <div>
+          <div class="sub" style="font-weight:700;font-size:11px;letter-spacing:0.04em" id="sheet-total-label">Total
+          </div>
+          <div class="sheet-total-val" id="sheet-total-val">₹0.00</div>
+        </div>
+        <div class="sub" style="color:var(--ac);font-weight:700;cursor:pointer" onclick="toast('Details verified')">See
+          details</div>
+      </div>
+
+      <!-- Interactive Neumorphic Drag Knob Track -->
+      <div class="swipe-track-container" id="swipe-track">
+        <div class="swipe-track-fill" id="swipe-track-fill"></div>
+        <div class="swipe-track-label" id="swipe-track-label">Pay in full</div>
+        <div class="swipe-knob" id="swipe-knob">→</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    // Real navigation definitions
+    const nav = [
+      ["dashboard", "▦", "Dashboard"],
+      ["projects", "▣", "Projects"],
+      ["employees", "☺", "Employees"],
+      ["attendance", "◷", "Attendance"],
+      ["leaves", "▤", "Leaves"],
+      ["payroll", "₹", "Payroll"],
+      ["documents", "▥", "Documents"],
+      ["helpdesk", "◎", "Helpdesk"],
+      ["tickets", "▭", "Tickets"],
+      ["performance", "★", "Performance"],
+      ["announcements", "📢", "Announcements"],
+      ["training", "🎓", "Training & LMS"],
+      ["induction", "🎓", "Induction Academy"],
+      ["settings", "⚙", "Company Settings"]
+    ];
+    const known = ["dashboard", "projects", "employees", "attendance", "leaves", "payroll"];
+
+    $("#nav").innerHTML = nav.map(n => `<button class="nav" data-k="${n[0]}"><span>${n[1]}</span>${n[2]}</button>`).join("");
+
+    function toggleMobileSidebar(show) {
+      const sidebar = $("#app-sidebar");
+      const backdrop = $("#sidebar-backdrop");
+      if (!sidebar || !backdrop) return;
+      const isCurrentlyOpen = sidebar.classList.contains("open");
+      const willOpen = typeof show === "boolean" ? show : !isCurrentlyOpen;
+      sidebar.classList.toggle("open", willOpen);
+      backdrop.classList.toggle("active", willOpen);
+    }
+
+    function go(k, l) {
+      $$("section").forEach(s => s.classList.add("hide"));
+      const id = known.includes(k) ? k : "other";
+      const el = $("#v-" + id);
+      if (el) el.classList.remove("hide");
+      if (id === "other") $("#otn").textContent = l || k.toUpperCase();
+      $$(".nav").forEach(b => b.classList.toggle("on", b.dataset.k === k));
+      const container = $(".content-area");
+      if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // On mobile screens, automatically close the left sidebar drawer upon navigation
+      if (window.innerWidth <= 900) {
+        toggleMobileSidebar(false);
+      }
+    }
+
+    $$(".nav").forEach(b => b.onclick = () => go(b.dataset.k, b.textContent.trim()));
+    go("dashboard", "Dashboard");
+
+    /* Toast helper */
+    function toast(msg) {
+      const t = document.createElement("div");
+      t.className = "toast";
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateY(8px)';
+        setTimeout(() => t.remove(), 250);
+      }, 2200);
+    }
+
+    /* Modal Helpers */
+    function closeModal() {
+      $("#modal-layer").classList.add("hide");
+    }
+
+    /* Modals */
+    function openBroadcastModal() {
+      $("#modal-box").innerHTML = `
+    <div class="hd"><h2>New Corporate Broadcast</h2><button class="pill" onclick="closeModal()">✕</button></div>
+    <div class="field"><input id="b-title" placeholder="Directive / Bulletin Title"></div>
+    <div class="field"><input id="b-tag" placeholder="Category (e.g. OPERATIONS, HR, ANNOUNCEMENT)" value="OPERATIONS"></div>
+    <div class="field"><textarea id="b-msg" style="border-radius:18px;min-height:90px;width:100%" placeholder="Type official directive message..."></textarea></div>
+    <div class="top" style="margin-top:18px;justify-content:flex-end">
+      <button class="pill" onclick="closeModal()">Cancel</button>
+      <button class="pill p" onclick="postBroadcast()">Broadcast</button>
+    </div>
+  `;
+      $("#modal-layer").classList.remove("hide");
+    }
+
+    function postBroadcast() {
+      const title = $("#b-title").value.trim();
+      const tag = $("#b-tag").value.trim() || "OPERATIONS";
+      if (!title) { toast("Please provide a bulletin title"); return; }
+
+      const empty = $("#bulletin-empty");
+      if (empty) empty.classList.add("hide");
+
+      const row = document.createElement("div");
+      row.className = "row";
+      row.style.borderRadius = "20px";
+      row.style.display = "block";
+      const now = new Date().toISOString().split("T")[0];
+      row.innerHTML = `
+    <span class="tag">${tag}</span> <span class="tag ok">NEW</span>
+    <span class="sub" style="float:right">${now}</span>
+    <div class="nm" style="margin-top:8px">${title}<small>By HynaStudio Admin</small></div>
+  `;
+      $("#bulletin-list").prepend(row);
+      closeModal();
+      toast("Bulletin published");
+    }
+
+    function openLeaveModal() {
+      $("#modal-box").innerHTML = `
+    <div class="hd"><h2>Apply for Leave</h2><button class="pill" onclick="closeModal()">✕</button></div>
+    <div class="field">
+      <select id="lv-emp">${E.map(e => `<option>${e[1]} (${e[2]})</option>`).join("") || '<option>Admin</option>'}</select>
+    </div>
+    <div class="field">
+      <select><option>Casual Leave (CL)</option><option>Sick Leave (SL)</option><option>Privilege Leave (PL)</option></select>
+    </div>
+    <div class="field"><input type="date"> to <input type="date"></div>
+    <div class="field"><input placeholder="Reason for leave…"></div>
+    <div class="top" style="margin-top:18px;justify-content:flex-end">
+      <button class="pill" onclick="closeModal()">Cancel</button>
+      <button class="pill p" onclick="closeModal(); toast('Leave request submitted')">Submit Application</button>
+    </div>
+  `;
+      $("#modal-layer").classList.remove("hide");
+    }
+
+    /* Clean State: Empty or Real Production Seed */
+    // Format: [Initials, Full Name, Role, Department, Email, Joined, Badge, AnnualCTC, MonthlyBase, IsPaid]
+    const E = [
+      ["HS", "Plywood Collective", "Product Engineering", "Engineering", "plywood@hynastudio.com", "Nov 15, 2026", "CORE", "₹11,88,000", "₹99,000", 0]
+    ];
+
+    function renderEmployees() {
+      const activeCount = E.length;
+      $("#emp-active-count").textContent = activeCount;
+      $("#stat-headcount").textContent = activeCount;
+
+      const depts = new Set(E.map(e => e[3]));
+      $("#stat-div").textContent = `${depts.size} Division${depts.size === 1 ? '' : 's'}`;
+
+      const tbody = $("#emp");
+      const emptyTable = $("#emp-empty-table");
+      const cardWrapper = $("#emp-cards-wrapper");
+
+      if (activeCount === 0) {
+        tbody.innerHTML = "";
+        emptyTable.classList.remove("hide");
+        cardWrapper.innerHTML = `
+      <div class="card empty" style="grid-column: 1 / -1">
+        <b>Staff directory is currently empty</b>
+        Click "+ Add Employee" to register members.
+      </div>
+    `;
+      } else {
+        emptyTable.classList.add("hide");
+        tbody.innerHTML = E.map((e, idx) => `
+      <tr>
+        <td>
+          <div class="top" style="gap:10px">
+            <span class="av" style="width:36px;height:36px;font-size:12px">${e[0]}</span>
+            <div class="nm">${e[1]} ${e[6] ? `<span class="tag">${e[6]}</span>` : ""}<small>${e[2]}</small></div>
+          </div>
+        </td>
+        <td>${e[3]}</td>
+        <td class="sub">${e[4]}</td>
+        <td><span class="tag ok">ACTIVE</span></td>
+        <td class="sub">${e[5]}</td>
+        <td>HynaStudio</td>
+        <td style="white-space:nowrap;text-align:right">
+          <button class="pill p" onclick="toast('Personnel record: ${e[1]}')">Details</button>
+          <button class="pill er" onclick="deleteEmp(${idx})">Remove</button>
+        </td>
+      </tr>
+    `).join("");
+
+        cardWrapper.innerHTML = E.map((e, idx) => `
+      <div class="card stat">
+        <span class="av" style="margin-bottom:8px">${e[0]}</span>
+        <div class="nm">${e[1]}</div>
+        <small>${e[2]}</small>
+        <div class="sub" style="margin:8px 0">${e[3]}</div>
+        <span class="tag ok">ACTIVE</span>
+        <div style="margin-top:14px;display:flex;gap:6px">
+          <button class="pill p" style="padding:4px 8px;font-size:11px" onclick="toast('Viewing ${e[1]}')">View</button>
+          <button class="pill er" style="padding:4px 8px;font-size:11px" onclick="deleteEmp(${idx})">Del</button>
+        </div>
+      </div>
+    `).join("");
+      }
+
+      renderAttendance();
+      renderPayroll();
+    }
+
+    function deleteEmp(idx) {
+      if (confirm(`Remove ${E[idx][1]} from the directory?`)) {
+        const name = E[idx][1];
+        E.splice(idx, 1);
+        renderEmployees();
+        toast(`Removed ${name}`);
+      }
+    }
+
+    function openAddEmpModal() {
+      $("#modal-box").innerHTML = `
+    <div class="hd"><h2>Add Team Member</h2><button class="pill" onclick="closeModal()">✕</button></div>
+    <div class="field"><input id="ne-name" placeholder="Full Name"></div>
+    <div class="field"><input id="ne-role" placeholder="Job Title / Designation"></div>
+    <div class="field"><input id="ne-dept" placeholder="Department" value="Engineering"></div>
+    <div class="field"><input id="ne-email" placeholder="Corporate Email"></div>
+    <div class="field">
+      <input id="ne-ctc" placeholder="Annual CTC (e.g. ₹12,00,000)" value="₹12,00,000">
+      <input id="ne-mo" placeholder="Monthly Package (e.g. ₹1,00,000)" value="₹1,00,000">
+    </div>
+    <div class="top" style="margin-top:18px;justify-content:flex-end">
+      <button class="pill" onclick="closeModal()">Cancel</button>
+      <button class="pill p" onclick="addEmployee()">Add to Directory</button>
+    </div>
+  `;
+      $("#modal-layer").classList.remove("hide");
+    }
+
+    function addEmployee() {
+      const name = $("#ne-name").value.trim();
+      const role = $("#ne-role").value.trim();
+      const dept = $("#ne-dept").value.trim() || "Operations";
+      const email = $("#ne-email").value.trim();
+      const ctc = $("#ne-ctc").value.trim() || "—";
+      const mo = $("#ne-mo").value.trim() || "—";
+
+      if (!name) { toast("Name is required"); return; }
+
+      const initials = name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) || "HS";
+      const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+      E.push([initials, name, role || "Staff", dept, email || "staff@hynastudio.com", today, "NEW", ctc, mo, 0]);
+      renderEmployees();
+      closeModal();
+      toast(`Added ${name} to directory`);
+    }
+
+    /* View toggle */
+    $("#emp-tab-tbl").onclick = () => {
+      $("#emp-tab-tbl").classList.add("on");
+      $("#emp-tab-tbl").style.boxShadow = "var(--i)";
+      $("#emp-tab-crd").classList.remove("on");
+      $("#emp-tab-crd").style.boxShadow = "var(--os)";
+      $("#emp-table-wrapper").classList.remove("hide");
+      $("#emp-cards-wrapper").classList.add("hide");
+    };
+    $("#emp-tab-crd").onclick = () => {
+      $("#emp-tab-crd").classList.add("on");
+      $("#emp-tab-crd").style.boxShadow = "var(--i)";
+      $("#emp-tab-tbl").classList.remove("on");
+      $("#emp-tab-tbl").style.boxShadow = "var(--os)";
+      $("#emp-table-wrapper").classList.add("hide");
+      $("#emp-cards-wrapper").classList.remove("hide");
+    };
+
+    /* Attendance */
+    function renderAttendance() {
+      const attDiv = $("#att");
+      const empty = $("#att-empty");
+      const total = E.length;
+
+      $("#att-present-count").textContent = 0;
+      $("#att-absent-count").textContent = total;
+      $("#att-ontime-count").textContent = 0;
+      $("#att-delayed-count").textContent = 0;
+
+      if (total === 0) {
+        attDiv.innerHTML = "";
+        empty.classList.remove("hide");
+      } else {
+        empty.classList.add("hide");
+        attDiv.innerHTML = E.map((e, i) => `
+      <div class="row">
+        <span class="av" style="width:36px;height:36px;font-size:12px">${e[0]}</span>
+        <div class="gr">
+          <div>${e[1]} <span class="tag">ID-${1000 + i}</span></div>
+          <div class="sub">${e[2]} • ${e[3]} (${e[4]})</div>
+        </div>
+        <span class="sub"><i>Not Clocked In Today</i></span>
+        <span class="tag er">✕ ABSENT</span>
+      </div>
+    `).join("");
+      }
+    }
+
+    function updateShiftTime() {
+      const val = $("#shift-time-val").value.trim();
+      $("#shift-policy-tag").textContent = "EXPECTED LOGIN: " + val;
+      toast("Shift login policy updated");
+    }
+
+    /* Payroll */
+    function renderPayroll() {
+      const tbody = $("#pay");
+      const empty = $("#pay-empty");
+      const total = E.length;
+
+      $("#pay-count-tag").textContent = `${total} Staff Member${total === 1 ? '' : 's'}`;
+
+      if (total === 0) {
+        tbody.innerHTML = "";
+        empty.classList.remove("hide");
+        $("#pay-total").textContent = "₹0";
+        $("#pay-disbursed").textContent = "₹0";
+        $("#pay-pending").textContent = "₹0";
+        $("#pay-bonus").textContent = "₹0";
+        $("#pay-disbursed-sub").textContent = "0 cleared";
+        $("#pay-pending-sub").textContent = "0 pending";
+      } else {
+        empty.classList.add("hide");
+        tbody.innerHTML = E.map((e, idx) => `
+      <tr>
+        <td class="nm">${e[1]}<small>${e[4]}<br>${e[3]} • ${e[2]}</small></td>
+        <td>${e[7]}<small class="sub"> / annum</small></td>
+        <td>${e[8]}<small class="sub"> / month</small></td>
+        <td class="sub">₹0 <button class="pill p" onclick="addBonus(${idx})">🎁 Bonus</button></td>
+        <td class="nm">${e[8]}</td>
+        <td>${e[9] ? '<span class="tag ok">✓ PAID</span>' : '<span class="tag wr">◷ PENDING</span>'}</td>
+        <td style="white-space:nowrap;text-align:right">
+          ${e[9] ? `<button class="pill" onclick="togglePay(${idx})">Mark Unpaid</button>` : `<button class="pill ok" onclick="openPayrollSwipe(${idx})">✓ Mark as Paid</button>`}
+          <button class="pill p" onclick="toast('Payslip generated for ${e[1]}')">Slip</button>
+        </td>
+      </tr>
+    `).join("");
+
+        $("#pay-disbursed-sub").textContent = `${E.filter(e => e[9]).length} cleared`;
+        $("#pay-pending-sub").textContent = `${E.filter(e => !e[9]).length} pending`;
+      }
+    }
+
+    function togglePay(idx) {
+      E[idx][9] = E[idx][9] ? 0 : 1;
+      renderPayroll();
+      toast(`Updated disbursement for ${E[idx][1]}`);
+    }
+
+    function addBonus(idx) {
+      const amt = prompt(`Add performance bonus for ${E[idx][1]}:`, "₹5,000");
+      if (amt) toast(`Allocated ${amt} bonus for ${E[idx][1]}`);
+    }
+
+    /* Project Workspace */
+    const T = {
+      Overview: `
+    <div class="grid g5">
+      <div class="card stat"><span class="ic ok">✓</span><small>TASKS COMPLETED</small><b>0 / 0</b></div>
+      <div class="card stat"><span class="ic">▷</span><small>IN PROGRESS</small><b>0 Tasks</b></div>
+      <div class="card stat"><span class="ic er">!</span><small>IMPEDIMENTS</small><b>0 Issues</b></div>
+      <div class="card stat"><span class="ic wr">🔥</span><small>ACTIVE SPRINT</small><b style="font-size:16px">Planning Stage</b></div>
+    </div>
+    <div class="grid g2" style="margin-top:20px">
+      <div class="grid">
+        <div class="card">
+          <div class="hd">
+            <h2>ROADMAP MILESTONES</h2>
+            <span class="tag">Active</span>
+          </div>
+          <div class="sub" style="margin:10px 0" id="milestone-box"><i>No milestones defined yet.</i></div>
+          <div class="field">
+            <input id="ms-input" placeholder="Milestone objective…">
+            <input id="ms-date" type="date" value="2026-11-25" style="flex:none;width:160px">
+            <button class="pill p" onclick="addMilestone()">Add Milestone</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>RISK REGISTER</h2>
+          <div class="sub" style="margin:10px 0" id="risk-box"><i>No operational risks logged.</i></div>
+          <div class="field">
+            <input id="risk-input" placeholder="Define technical risk or dependency…" style="flex-basis:100%">
+            <select><option>Low Severity</option><option selected>Medium Severity</option><option>High Severity</option></select>
+            <select><option>Low Probability</option><option selected>Medium Probability</option><option>Critical</option></select>
+            <button class="pill p" onclick="addRisk()">Log Risk</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="align-self:start">
+        <h2>PROJECT AUDIT LOG</h2>
+        <div class="nm" style="margin-top:12px">HynaStudio Core<small>Project workspace initialized<br>System operational</small></div>
+      </div>
+    </div>
+  `,
+      Backlog: `
+    <div class="card">
+      <div class="sub"><b>ISSUE REGISTRATION</b></div>
+      <div class="field">
+        <input id="issue-text" placeholder="Describe feature, task, or defect…" style="flex:3">
+        <select><option>Task</option><option>Story</option><option>Bug</option></select>
+        <select><option>Medium</option><option>High</option><option>Low</option></select>
+        <button class="pill p" onclick="createIssue()">+ Create Issue</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <div id="issue-list">
+        <div class="empty"><b>Backlog is clean</b>Use the issue creator above to log technical work items.</div>
+      </div>
+    </div>
+  `,
+      "Board Views": `
+    <div class="tabs">
+      <button class="pill on" style="box-shadow:var(--i);color:var(--ac)">Scrum Sprints</button>
+      <button class="pill" onclick="toast('Kanban view active')">Kanban Flow</button>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="hd">
+        <div>
+          <h2>Current Sprint <span class="tag wr">Planning</span></h2>
+          <div class="sub">Committed backlog deliverables for current sprint cycle.</div>
+        </div>
+        <div class="top">
+          <button class="pill ok" onclick="toast('Sprint initiated')">▶ Start Sprint</button>
+        </div>
+      </div>
+      <div class="empty">
+        <b>Sprint is empty</b>
+        Pull user stories or tasks from the backlog to commit work.
+      </div>
+    </div>
+  `,
+      "Team Allocations": `
+    <div class="card">
+      <h2>Allocated Engineers &amp; Contributors</h2>
+      <div class="empty">
+        <b>No team members allocated</b>
+        Assign staff from the employee directory to this project workspace.
+      </div>
+    </div>
+  `,
+      Docs: `
+    <div class="card">
+      <div class="hd">
+        <h2>Project Documentation &amp; Architecture</h2>
+        <div class="top">
+          <button class="pill p" onclick="toast('Attach document dialog')">+ Upload Doc</button>
+        </div>
+      </div>
+      <div class="empty">
+        <b>No documents attached</b>
+        Attach design docs, API specs, and technical guidelines here.
+      </div>
+    </div>
+  `
+    };
+
+    $("#ptabs").innerHTML = Object.keys(T).map(k => `<button class="pill" data-t="${k}">${k}</button>`).join("");
+    function pt(k) {
+      $("#pbody").innerHTML = T[k];
+      $$("#ptabs .pill").forEach(b => b.classList.toggle("on", b.dataset.t === k));
+    }
+    $$("#ptabs .pill").forEach(b => b.onclick = () => pt(b.dataset.t));
+    pt("Overview");
+
+    function addMilestone() {
+      const val = $("#ms-input").value.trim();
+      const d = $("#ms-date").value;
+      if (!val) return;
+      $("#milestone-box").innerHTML = `<div class="row" style="border-radius:18px"><div class="gr"><b>${val}</b></div><span class="tag ok">${d}</span></div>`;
+      $("#ms-input").value = "";
+      toast("Milestone logged");
+    }
+
+    function addRisk() {
+      const val = $("#risk-input").value.trim();
+      if (!val) return;
+      $("#risk-box").innerHTML = `<div class="row" style="border-radius:18px"><div class="gr"><b>${val}</b></div><span class="tag wr">LOGGED</span></div>`;
+      $("#risk-input").value = "";
+      toast("Risk logged to register");
+    }
+
+    function createIssue() {
+      const val = $("#issue-text").value.trim();
+      if (!val) return;
+      const num = Math.floor(Math.random() * 800) + 100;
+      const list = $("#issue-list");
+      if (list.querySelector(".empty")) list.innerHTML = "";
+      const row = document.createElement("div");
+      row.className = "row";
+      row.style.borderRadius = "18px";
+      row.innerHTML = `<span class="tag">TASK</span><div class="gr"><b>HS-${num}</b> ${val}</div><span class="tag ok">NORMAL</span><span class="sub">Open</span>`;
+      list.prepend(row);
+      $("#issue-text").value = "";
+      toast(`Created Issue HS-${num}`);
+    }
+
+    function openNewProjectModal() {
+      $("#modal-box").innerHTML = `
+    <div class="hd"><h2>Create Project Workspace</h2><button class="pill" onclick="closeModal()">✕</button></div>
+    <div class="field"><input id="np-title" placeholder="Project Name"></div>
+    <div class="field"><input id="np-code" placeholder="Project Code / Key (e.g. CORE)" value="PRJ"></div>
+    <div class="field"><input id="np-lead" placeholder="Project Lead" value="Engineering Lead"></div>
+    <div class="field"><textarea id="np-desc" placeholder="Scope and objectives…" style="border-radius:18px;width:100%"></textarea></div>
+    <div class="top" style="margin-top:18px;justify-content:flex-end">
+      <button class="pill" onclick="closeModal()">Cancel</button>
+      <button class="pill p" onclick="saveNewProject()">Create Workspace</button>
+    </div>
+  `;
+      $("#modal-layer").classList.remove("hide");
+    }
+
+    function saveNewProject() {
+      const title = $("#np-title").value.trim();
+      const code = $("#np-code").value.trim() || "PRJ";
+      const lead = $("#np-lead").value.trim() || "Project Lead";
+      const desc = $("#np-desc").value.trim();
+      if (!title) { toast("Project title is required"); return; }
+
+      $("#proj-tag").textContent = code;
+      $("#proj-title").textContent = title;
+      $("#proj-lead").textContent = "Lead: " + lead;
+      if (desc) $("#proj-desc").textContent = desc;
+
+      closeModal();
+      toast(`Workspace ${title} initialized`);
+    }
+
+    function archiveProject() {
+      if (confirm("Archive this project workspace?")) {
+        toast("Project workspace archived");
+      }
+    }
+
+    /* Global Search */
+    $("#global-search").onkeydown = (e) => {
+      if (e.key === "Enter") {
+        toast(`Searching across HynaStudio records for "${e.target.value}"`);
+      }
+    };
+
+    /* ============================================================
+       Neumorphic Bottom Sheet Swipe Popup System
+       ============================================================ */
+    let activeSwipeCallback = null;
+    let swipeDragging = false;
+    let swipeStartX = 0;
+    let swipeCurrentX = 0;
+    let swipeMaxDistance = 0;
+
+    function closeSwipeSheet() {
+      const overlay = $("#swipe-sheet-layer");
+      overlay.classList.remove("open");
+      resetSwipeKnob();
+      activeSwipeCallback = null;
+    }
+
+    function resetSwipeKnob() {
+      const knob = $("#swipe-knob");
+      const fill = $("#swipe-track-fill");
+      const label = $("#swipe-track-label");
+      knob.style.transform = `translateX(0px)`;
+      knob.classList.remove("success");
+      knob.innerHTML = "→";
+      fill.style.width = "0%";
+      label.style.opacity = "1";
+      swipeDragging = false;
+      swipeCurrentX = 0;
+    }
+
+    function initSwipeInteraction() {
+      const track = $("#swipe-track");
+      const knob = $("#swipe-knob");
+      const fill = $("#swipe-track-fill");
+      const label = $("#swipe-track-label");
+
+      function onPointerDown(e) {
+        swipeDragging = true;
+        swipeStartX = e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+        const trackRect = track.getBoundingClientRect();
+        const knobRect = knob.getBoundingClientRect();
+        swipeMaxDistance = trackRect.width - knobRect.width - 8;
+        knob.style.transition = "none";
+        fill.style.transition = "none";
+      }
+
+      function onPointerMove(e) {
+        if (!swipeDragging) return;
+        const clientX = e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+        let diff = clientX - swipeStartX;
+        if (diff < 0) diff = 0;
+        if (diff > swipeMaxDistance) diff = swipeMaxDistance;
+        swipeCurrentX = diff;
+        knob.style.transform = `translateX(${diff}px)`;
+        const pct = (diff / swipeMaxDistance) * 100;
+        fill.style.width = `${pct}%`;
+        label.style.opacity = `${Math.max(0, 1 - (pct / 70))}`;
+      }
+
+      function onPointerUp() {
+        if (!swipeDragging) return;
+        swipeDragging = false;
+        knob.style.transition = "transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)";
+        fill.style.transition = "width 0.22s cubic-bezier(0.16, 1, 0.3, 1)";
+        label.style.transition = "opacity 0.2s ease";
+
+        // Threshold: 85% drag considered a full successful swipe
+        if (swipeCurrentX >= swipeMaxDistance * 0.85) {
+          // Snap to end
+          knob.style.transform = `translateX(${swipeMaxDistance}px)`;
+          fill.style.width = "100%";
+          knob.classList.add("success");
+          knob.innerHTML = "✓";
+
+          setTimeout(() => {
+            if (typeof activeSwipeCallback === "function") {
+              activeSwipeCallback();
+            }
+            closeSwipeSheet();
+          }, 350);
+        } else {
+          // Snap back
+          resetSwipeKnob();
+        }
+      }
+
+      // Pointer events (handles both mouse and touch)
+      knob.addEventListener("mousedown", onPointerDown);
+      window.addEventListener("mousemove", onPointerMove);
+      window.addEventListener("mouseup", onPointerUp);
+
+      knob.addEventListener("touchstart", onPointerDown, { passive: true });
+      window.addEventListener("touchmove", onPointerMove, { passive: true });
+      window.addEventListener("touchend", onPointerUp);
+    }
+
+    // 1. Pay in Full Swipe Popup (Exact structure matching user reference image)
+    function openPayrollSwipe(idx) {
+      const emp = E[idx];
+      if (!emp) return;
+
+      const monthAmt = emp[8] || "₹99,000";
+      const todayStr = new Date().toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" });
+
+      $("#sheet-icon").textContent = "💳";
+      $("#sheet-title").textContent = "Pay in full";
+      $("#sheet-total-label").textContent = "Total";
+      $("#sheet-total-val").textContent = monthAmt;
+      $("#swipe-track-label").textContent = "Pay in full";
+
+      $("#sheet-details-box").innerHTML = `
+    <div class="sheet-row">
+      <span class="sheet-label">To</span>
+      <span class="sheet-badge-pill dot-green">${emp[1]}</span>
+    </div>
+    <div class="sheet-row">
+      <span class="sheet-label">From</span>
+      <span class="sheet-badge-pill dot-orange">HynaCorp ••••9460 &nbsp;›</span>
+    </div>
+    <div class="sheet-row">
+      <span class="sheet-label">Pay on</span>
+      <span class="sheet-val">${todayStr} &nbsp;›</span>
+    </div>
+    <div class="sheet-row">
+      <span class="sheet-label">Fee (0%)</span>
+      <span class="sheet-val">₹0.00</span>
+    </div>
+  `;
+
+      resetSwipeKnob();
+      activeSwipeCallback = () => {
+        E[idx][9] = 1;
+        renderPayroll();
+        toast(`Payment of ${monthAmt} cleared for ${emp[1]}`);
+      };
+
+      $("#swipe-sheet-layer").classList.add("open");
+    }
+
+    // 2. Verify Attendance Swipe Popup
+    function openVerifyAttendanceSwipe(empIdx = 0) {
+      const emp = E[empIdx] || ["HS", "Active Employee", "Engineering", "Engineering", "staff@hynastudio.com", "Nov 2026", "CORE", "—", "—", 0];
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const dateStr = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+
+      $("#sheet-icon").textContent = "◷";
+      $("#sheet-title").textContent = "Verify Attendance";
+      $("#sheet-total-label").textContent = "Check-in Status";
+      $("#sheet-total-val").textContent = "On-Time";
+      $("#swipe-track-label").textContent = "Swipe to Confirm Attendance";
+
+      $("#sheet-details-box").innerHTML = `
+    <div class="sheet-row">
+      <span class="sheet-label">Employee</span>
+      <span class="sheet-badge-pill dot-green">${emp[1]} (${emp[0]})</span>
+    </div>
+    <div class="sheet-row">
+      <span class="sheet-label">Shift</span>
+      <span class="sheet-badge-pill dot-orange">Morning Standard (09:00 AM)</span>
+    </div>
+    <div class="sheet-row">
+      <span class="sheet-label">Date</span>
+      <span class="sheet-val">${dateStr}</span>
+    </div>
+    <div class="sheet-row">
+      <span class="sheet-label">Live Check-in</span>
+      <span class="sheet-val ok" style="font-weight:800">${timeStr}</span>
+    </div>
+  `;
+
+      resetSwipeKnob();
+      activeSwipeCallback = () => {
+        $("#att-present-count").textContent = "1";
+        $("#att-ontime-count").textContent = "1";
+        $("#stat-present").textContent = "1";
+        $("#stat-present-rate").textContent = "100.0% rate";
+        toast(`Attendance verified for ${emp[1]} at ${timeStr}`);
+      };
+
+      $("#swipe-sheet-layer").classList.add("open");
+    }
+
+    /* Initialize Swipe Track Interactions */
+    initSwipeInteraction();
+
+    /* Initialize Application */
+    renderEmployees();
+  </script>
+</body>
+
+</html>
