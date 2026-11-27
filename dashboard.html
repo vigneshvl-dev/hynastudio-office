@@ -187,6 +187,32 @@
       gap: 10px;
     }
 
+    .logout-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 0;
+      background: var(--bg);
+      box-shadow: var(--os);
+      color: var(--er);
+      font-size: 15px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: box-shadow .15s, transform .15s, color .15s;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-1px);
+      color: #a01c33;
+    }
+
+    .logout-btn:active {
+      box-shadow: var(--i);
+      transform: translateY(1px);
+    }
+
     /* Main Workspace Viewport */
     .main {
       flex: 1;
@@ -1303,10 +1329,11 @@
       <div class="nav-container" id="nav"></div>
       <div class="side-footer">
         <div class="av" style="width:34px;height:34px"><img src="assets/hyna_logo.jpg" alt="HynaStudio"></div>
-        <div class="nm" style="font-size:12px">
+        <div class="nm" style="font-size:12px;flex:1">
           HynaStudio
           <small style="font-size:10px">Enterprise Core</small>
         </div>
+        <button class="logout-btn" onclick="window.location.href='index.html'" title="Logout">⏻</button>
       </div>
     </aside>
 
