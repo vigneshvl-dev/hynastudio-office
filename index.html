@@ -1,295 +1,884 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>HynaStudio – Welcome Back</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#f5f4ff; --card:#ffffff; --ink:#0b0b0f; --muted:#7b7b86; --line:#d3d3da;
-  --brand:#6d4de0; --brand-glow:rgba(109,77,224,.45); --chip:#dcdcdc;
-  --card-shadow:rgba(109,77,224,.30);
-  color-scheme: light;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
-}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*,*::before,*::after{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:32px 20px;
-  background:var(--bg);font-family:'Inter',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:var(--ink)}
-.card{width:100%;max-width:1000px;display:grid;grid-template-columns:1fr 1fr;gap:0;padding:14px;
-  background:var(--card);border-radius:28px;box-shadow:0 24px 60px -10px var(--card-shadow)}
-/* left visual */
-.visual{position:relative;overflow:hidden;border-radius:26px;min-height:560px;background:#c9e6ff;isolation:isolate}
-.blob{position:absolute;border-radius:50%;filter:blur(55px);z-index:-1}
-.b1{width:60%;height:55%;left:-12%;top:-8%;background:#8fd3ff}
-.b2{width:55%;height:50%;right:-15%;top:-12%;background:#b45cf6}
-.b3{width:70%;height:62%;left:-18%;top:22%;background:#0a0a96}
-.b4{width:46%;height:50%;left:18%;top:20%;background:#6d4de0;filter:blur(60px)}
-.b5{width:55%;height:55%;right:-12%;top:25%;background:#bfe6ff}
-.b6{width:60%;height:34%;left:-6%;bottom:-10%;background:#8a6df6}
-.b7{width:55%;height:32%;right:-8%;bottom:-8%;background:#d9d6ff}
-.visual .logo-wrap{position:absolute;left:26px;top:22px;display:flex;align-items:center;gap:10px}
-.visual .logo-img{width:44px;height:44px;border-radius:50%;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,.2)}
-.visual .logo-text{font-size:17px;font-weight:900;color:#fff;letter-spacing:.06em;text-shadow:0 2px 8px rgba(0,0,0,.25)}
-.visual .logo-text span{color:#ffffff}
-.visual .copy{position:absolute;left:38px;right:38px;bottom:38px;color:#fff}
-.visual .copy small{display:block;font-size:15px;font-weight:400;margin-bottom:22px}
-.visual .copy h2{margin:0;font-size:28px;line-height:1.16;font-weight:600;letter-spacing:-.01em}
-/* right form */
-.form{display:flex;align-items:center;justify-content:center;padding:36px 24px}
-.inner{width:100%;max-width:310px}
-.mark{width:40px;height:40px;border-radius:50%;object-fit:cover;display:block;margin-bottom:6px;
-  box-shadow:0 3px 10px rgba(109,77,224,.25)}
-h1{margin:0 0 14px;font-size:30px;font-weight:700;letter-spacing:-.02em}
-.sub{margin:0 0 30px;font-size:12px;line-height:1.35;color:var(--muted)}
-label{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
-.field{position:relative;margin-bottom:20px}
-.field input{width:100%;height:36px;padding:0 38px 0 18px;border:1.5px solid var(--line);border-radius:10px;
-  font:400 11.5px 'Inter',sans-serif;color:#333;background:#fff;outline:none;transition:border-color .2s, box-shadow .2s}
-.field input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,77,224,.15)}
-.field input[type=password]{letter-spacing:2px}
-.eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;padding:4px;cursor:pointer;color:#777;display:grid;place-items:center}
-.eye svg{width:14px;height:14px}
-.cta{width:100%;height:36px;margin-top:12px;border:0;border-radius:8px;background:var(--brand);color:#fff;
-  font:600 11px 'Inter',sans-serif;cursor:pointer;box-shadow:0 10px 22px -4px var(--brand-glow);transition:transform .15s, box-shadow .15s}
-.cta:hover{transform:translateY(-1px);box-shadow:0 14px 26px -4px var(--brand-glow)}
-.or{display:flex;align-items:center;gap:8px;margin:28px 0 20px;font-size:8px;color:#777}
-.or::before,.or::after{content:"";flex:1;height:1px;background:#bbb}
-.socials{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
-.soc{height:24px;border:0;border-radius:6px;background:var(--chip);display:grid;place-items:center;cursor:pointer;transition:filter .15s}
-.soc:hover{filter:brightness(.95)}
-.soc svg{width:13px;height:13px}
-.soc b{font-size:10px;font-weight:700;color:#111}
-.foot{margin:28px 0 0;text-align:center;font-size:12px;color:#777}
-.foot a{color:var(--brand);text-decoration:none}
-.foot a:hover{text-decoration:underline}
-.field select{width:100%;height:36px;padding:0 18px;border:1.5px solid var(--line);border-radius:10px;
-  font:400 11.5px 'Inter',sans-serif;color:#333;background:#fff;outline:none;cursor:pointer;
-  transition:border-color .2s, box-shadow .2s;-webkit-appearance:none;appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 14px center}
-.field select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,77,224,.15)}
-/* session expired message */
-.session-msg{margin:0 0 16px;font-size:11.5px;line-height:1.4;color:#c46e16;background:rgba(196,110,22,.08);
-  border:1px solid rgba(196,110,22,.2);border-radius:8px;padding:10px 14px;text-align:center}
-/* forgot password */
-.forgot{margin:16px 0 0;text-align:center;font-size:12px}
-.forgot a{color:var(--brand);text-decoration:none;font-weight:500}
-.forgot a:hover{text-decoration:underline}
-/* error state */
-.error-msg{color:#c2334b;font-size:11px;margin-top:6px;display:none}
-.error-msg.show{display:block}
-.field input.input-error{border-color:#c2334b}
-/* loading state */
-.cta.loading{pointer-events:none;opacity:.7}
-.cta .spinner{display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto}
-.cta.loading .btn-text{display:none}
-.cta.loading .spinner{display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
-/* ---- animations ---- */
-@keyframes cardIn{from{opacity:0;transform:translateY(28px) scale(.97)}to{opacity:1;transform:none}}
-@keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(9%,7%) scale(1.15)}}
-@keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-10%,9%) scale(1.12)}}
-@keyframes drift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(8%,-8%) scale(1.1)}}
-@keyframes glow{0%,100%{box-shadow:0 10px 22px -4px var(--brand-glow)}50%{box-shadow:0 14px 30px -2px var(--brand-glow)}}
-.card{animation:cardIn .9s cubic-bezier(.22,1,.36,1) both}
-.visual{animation:fadeIn 1.2s ease .15s both}
-.b1{animation:drift1 11s ease-in-out infinite}
-.b2{animation:drift2 13s ease-in-out infinite}
-.b3{animation:drift3 15s ease-in-out infinite}
-.b4{animation:drift2 12s ease-in-out infinite reverse}
-.b5{animation:drift1 14s ease-in-out infinite reverse}
-.b6{animation:drift3 12s ease-in-out infinite}
-.b7{animation:drift2 16s ease-in-out infinite}
-.visual .copy{animation:riseIn .9s cubic-bezier(.22,1,.36,1) .7s both}
-.inner>*{animation:riseIn .8s cubic-bezier(.22,1,.36,1) both}
-.inner>:nth-child(1){animation-delay:.35s}
-.inner>:nth-child(2){animation-delay:.45s}
-.inner>:nth-child(3){animation-delay:.55s}
-.inner>:nth-child(4){animation-delay:.65s}
-.inner>:nth-child(5){animation-delay:.75s}
-.inner>:nth-child(6){animation-delay:.85s}
-.inner>:nth-child(7){animation-delay:.95s}
-.inner>:nth-child(8){animation-delay:1.05s}
-.inner>:nth-child(9){animation-delay:1.15s}
-.cta{animation:riseIn .8s cubic-bezier(.22,1,.36,1) .75s both, glow 3s ease-in-out 1.8s infinite !important;position:relative;overflow:hidden}
-.cta::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-120%);transition:transform .7s ease}
-.cta:hover::after{transform:translateX(120%)}
-.cta:active{transform:scale(.98)}
-.soc{transition:transform .25s cubic-bezier(.22,1,.36,1), background .25s, filter .15s}
-.soc:hover{transform:translateY(-3px);background:#cfcfd6}
-.field input{transition:border-color .3s, box-shadow .3s, transform .3s}
-.field input:focus{transform:translateY(-1px)}
-.eye{transition:color .2s, transform .2s}
-.eye:hover{color:var(--brand);transform:translateY(-50%) scale(1.15)}
-.foot a{position:relative}
-.foot a::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
-.foot a:hover{text-decoration:none}
-.foot a:hover::after{transform:scaleX(1)}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
-@media(max-width:820px){
-  .card{grid-template-columns:1fr}
-  .visual{min-height:300px}
-  .visual .copy h2{font-size:22px}
-  .form{padding:36px 10px 28px}
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>HynaStudio – Welcome Back</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f4ff;
+      --card: #ffffff;
+      --ink: #0b0b0f;
+      --muted: #7b7b86;
+      --line: #d3d3da;
+      --brand: #6d4de0;
+      --brand-glow: rgba(109, 77, 224, .45);
+      --chip: #dcdcdc;
+      --card-shadow: rgba(109, 77, 224, .30);
+      color-scheme: light;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px)
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 32px 20px;
+      background: var(--bg);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+      color: var(--ink)
+    }
+
+    .card {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      padding: 14px;
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: 0 24px 60px -10px var(--card-shadow)
+    }
+
+    /* left visual */
+    .visual {
+      position: relative;
+      overflow: hidden;
+      border-radius: 26px;
+      min-height: 560px;
+      background: #c9e6ff;
+      isolation: isolate
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(55px);
+      z-index: -1
+    }
+
+    .b1 {
+      width: 60%;
+      height: 55%;
+      left: -12%;
+      top: -8%;
+      background: #8fd3ff
+    }
+
+    .b2 {
+      width: 55%;
+      height: 50%;
+      right: -15%;
+      top: -12%;
+      background: #b45cf6
+    }
+
+    .b3 {
+      width: 70%;
+      height: 62%;
+      left: -18%;
+      top: 22%;
+      background: #0a0a96
+    }
+
+    .b4 {
+      width: 46%;
+      height: 50%;
+      left: 18%;
+      top: 20%;
+      background: #6d4de0;
+      filter: blur(60px)
+    }
+
+    .b5 {
+      width: 55%;
+      height: 55%;
+      right: -12%;
+      top: 25%;
+      background: #bfe6ff
+    }
+
+    .b6 {
+      width: 60%;
+      height: 34%;
+      left: -6%;
+      bottom: -10%;
+      background: #8a6df6
+    }
+
+    .b7 {
+      width: 55%;
+      height: 32%;
+      right: -8%;
+      bottom: -8%;
+      background: #d9d6ff
+    }
+
+    .visual .logo-wrap {
+      position: absolute;
+      left: 26px;
+      top: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .visual .logo-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .2)
+    }
+
+    .visual .logo-text {
+      font-size: 17px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: .06em;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, .25)
+    }
+
+    .visual .logo-text span {
+      color: #ffffff
+    }
+
+    .visual .copy {
+      position: absolute;
+      left: 38px;
+      right: 38px;
+      bottom: 38px;
+      color: #fff
+    }
+
+    .visual .copy small {
+      display: block;
+      font-size: 15px;
+      font-weight: 400;
+      margin-bottom: 22px
+    }
+
+    .visual .copy h2 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.16;
+      font-weight: 600;
+      letter-spacing: -.01em
+    }
+
+    /* right form */
+    .form {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 36px 24px
+    }
+
+    .inner {
+      width: 100%;
+      max-width: 310px
+    }
+
+    .mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 6px;
+      box-shadow: 0 3px 10px rgba(109, 77, 224, .25)
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -.02em
+    }
+
+    .sub {
+      margin: 0 0 30px;
+      font-size: 12px;
+      line-height: 1.35;
+      color: var(--muted)
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px
+    }
+
+    .field {
+      position: relative;
+      margin-bottom: 20px
+    }
+
+    .field input {
+      width: 100%;
+      height: 36px;
+      padding: 0 38px 0 18px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      font: 400 11.5px 'Inter', sans-serif;
+      color: #333;
+      background: #fff;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s
+    }
+
+    .field input:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(109, 77, 224, .15)
+    }
+
+    .field input[type=password] {
+      letter-spacing: 2px
+    }
+
+    .eye {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: 0;
+      padding: 4px;
+      cursor: pointer;
+      color: #777;
+      display: grid;
+      place-items: center
+    }
+
+    .eye svg {
+      width: 14px;
+      height: 14px
+    }
+
+    .cta {
+      width: 100%;
+      height: 36px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--brand);
+      color: #fff;
+      font: 600 11px 'Inter', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 10px 22px -4px var(--brand-glow);
+      transition: transform .15s, box-shadow .15s
+    }
+
+    .cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px -4px var(--brand-glow)
+    }
+
+    .or {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 28px 0 20px;
+      font-size: 8px;
+      color: #777
+    }
+
+    .or::before,
+    .or::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #bbb
+    }
+
+    .socials {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px
+    }
+
+    .soc {
+      height: 24px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--chip);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: filter .15s
+    }
+
+    .soc:hover {
+      filter: brightness(.95)
+    }
+
+    .soc svg {
+      width: 13px;
+      height: 13px
+    }
+
+    .soc b {
+      font-size: 10px;
+      font-weight: 700;
+      color: #111
+    }
+
+    .foot {
+      margin: 28px 0 0;
+      text-align: center;
+      font-size: 12px;
+      color: #777
+    }
+
+    .foot a {
+      color: var(--brand);
+      text-decoration: none
+    }
+
+    .foot a:hover {
+      text-decoration: underline
+    }
+
+    .field select {
+      width: 100%;
+      height: 36px;
+      padding: 0 18px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      font: 400 11.5px 'Inter', sans-serif;
+      color: #333;
+      background: #fff;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center
+    }
+
+    .field select:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(109, 77, 224, .15)
+    }
+
+    /* session expired message */
+    .session-msg {
+      margin: 0 0 16px;
+      font-size: 11.5px;
+      line-height: 1.4;
+      color: #c46e16;
+      background: rgba(196, 110, 22, .08);
+      border: 1px solid rgba(196, 110, 22, .2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      text-align: center
+    }
+
+    /* forgot password */
+    .forgot {
+      margin: 16px 0 0;
+      text-align: center;
+      font-size: 12px
+    }
+
+    .forgot a {
+      color: var(--brand);
+      text-decoration: none;
+      font-weight: 500
+    }
+
+    .forgot a:hover {
+      text-decoration: underline
+    }
+
+    /* error state */
+    .error-msg {
+      color: #c2334b;
+      font-size: 11px;
+      margin-top: 6px;
+      display: none
+    }
+
+    .error-msg.show {
+      display: block
+    }
+
+    .field input.input-error {
+      border-color: #c2334b
+    }
+
+    /* loading state */
+    .cta.loading {
+      pointer-events: none;
+      opacity: .7
+    }
+
+    .cta .spinner {
+      display: none;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, .3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      margin: 0 auto
+    }
+
+    .cta.loading .btn-text {
+      display: none
+    }
+
+    .cta.loading .spinner {
+      display: inline-block
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* ---- animations ---- */
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(28px) scale(.97)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes riseIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    @keyframes drift1 {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1)
+      }
+
+      50% {
+        transform: translate(9%, 7%) scale(1.15)
+      }
+    }
+
+    @keyframes drift2 {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1)
+      }
+
+      50% {
+        transform: translate(-10%, 9%) scale(1.12)
+      }
+    }
+
+    @keyframes drift3 {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1)
+      }
+
+      50% {
+        transform: translate(8%, -8%) scale(1.1)
+      }
+    }
+
+    @keyframes glow {
+
+      0%,
+      100% {
+        box-shadow: 0 10px 22px -4px var(--brand-glow)
+      }
+
+      50% {
+        box-shadow: 0 14px 30px -2px var(--brand-glow)
+      }
+    }
+
+    .card {
+      animation: cardIn .9s cubic-bezier(.22, 1, .36, 1) both
+    }
+
+    .visual {
+      animation: fadeIn 1.2s ease .15s both
+    }
+
+    .b1 {
+      animation: drift1 11s ease-in-out infinite
+    }
+
+    .b2 {
+      animation: drift2 13s ease-in-out infinite
+    }
+
+    .b3 {
+      animation: drift3 15s ease-in-out infinite
+    }
+
+    .b4 {
+      animation: drift2 12s ease-in-out infinite reverse
+    }
+
+    .b5 {
+      animation: drift1 14s ease-in-out infinite reverse
+    }
+
+    .b6 {
+      animation: drift3 12s ease-in-out infinite
+    }
+
+    .b7 {
+      animation: drift2 16s ease-in-out infinite
+    }
+
+    .visual .copy {
+      animation: riseIn .9s cubic-bezier(.22, 1, .36, 1) .7s both
+    }
+
+    .inner>* {
+      animation: riseIn .8s cubic-bezier(.22, 1, .36, 1) both
+    }
+
+    .inner>:nth-child(1) {
+      animation-delay: .35s
+    }
+
+    .inner>:nth-child(2) {
+      animation-delay: .45s
+    }
+
+    .inner>:nth-child(3) {
+      animation-delay: .55s
+    }
+
+    .inner>:nth-child(4) {
+      animation-delay: .65s
+    }
+
+    .inner>:nth-child(5) {
+      animation-delay: .75s
+    }
+
+    .inner>:nth-child(6) {
+      animation-delay: .85s
+    }
+
+    .inner>:nth-child(7) {
+      animation-delay: .95s
+    }
+
+    .inner>:nth-child(8) {
+      animation-delay: 1.05s
+    }
+
+    .inner>:nth-child(9) {
+      animation-delay: 1.15s
+    }
+
+    .cta {
+      animation: riseIn .8s cubic-bezier(.22, 1, .36, 1) .75s both, glow 3s ease-in-out 1.8s infinite !important;
+      position: relative;
+      overflow: hidden
+    }
+
+    .cta::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .35) 50%, transparent 65%);
+      transform: translateX(-120%);
+      transition: transform .7s ease
+    }
+
+    .cta:hover::after {
+      transform: translateX(120%)
+    }
+
+    .cta:active {
+      transform: scale(.98)
+    }
+
+    .soc {
+      transition: transform .25s cubic-bezier(.22, 1, .36, 1), background .25s, filter .15s
+    }
+
+    .soc:hover {
+      transform: translateY(-3px);
+      background: #cfcfd6
+    }
+
+    .field input {
+      transition: border-color .3s, box-shadow .3s, transform .3s
+    }
+
+    .field input:focus {
+      transform: translateY(-1px)
+    }
+
+    .eye {
+      transition: color .2s, transform .2s
+    }
+
+    .eye:hover {
+      color: var(--brand);
+      transform: translateY(-50%) scale(1.15)
+    }
+
+    .foot a {
+      position: relative
+    }
+
+    .foot a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -2px;
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .3s ease
+    }
+
+    .foot a:hover {
+      text-decoration: none
+    }
+
+    .foot a:hover::after {
+      transform: scaleX(1)
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important
+      }
+    }
+
+    @media(max-width:820px) {
+      .card {
+        grid-template-columns: 1fr
+      }
+
+      .visual {
+        min-height: 300px
+      }
+
+      .visual .copy h2 {
+        font-size: 22px
+      }
+
+      .form {
+        padding: 36px 10px 28px
+      }
+    }
+  </style>
 </head>
+
 <body>
-<main class="card">
-  <section class="visual" aria-hidden="true">
-    <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i>
-    <i class="blob b5"></i><i class="blob b6"></i><i class="blob b7"></i>
-    <div class="logo-wrap">
-      <img class="logo-img" src="assets/hyna_logo.jpg" alt="HynaStudio">
-      <span class="logo-text">HYNA<span>STUDIO</span></span>
-    </div>
-    <div class="copy">
-      <small>Welcome back</small>
-      <h2>Your personal hub for clarity and productivity</h2>
-    </div>
-  </section>
-
-  <section class="form">
-    <div class="inner">
-      <img class="mark" src="assets/hyna_logo.jpg" alt="HynaStudio">
-      <h1>Welcome Back</h1>
-      <p class="sub">Sign in to continue your journey</p>
-
-      <div class="field">
-        <label for="email">Corporate Email Address</label>
-        <input id="email" type="email" value="" autocomplete="email">
-        <p class="error-msg" id="emailError">Please enter a valid email address</p>
+  <main class="card">
+    <section class="visual" aria-hidden="true">
+      <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i>
+      <i class="blob b5"></i><i class="blob b6"></i><i class="blob b7"></i>
+      <div class="logo-wrap">
+        <img class="logo-img" src="assets/hyna_logo.jpg" alt="HynaStudio">
+        <span class="logo-text">HYNA<span>STUDIO</span></span>
       </div>
-      <div class="field" style="display:none">
-        <label for="role">Select Role</label>
-        <select id="role">
-          <option value="ceo">CEO</option>
-          <option value="manager">Manager</option>
-          <option value="hr">HR</option>
-          <option value="employee" selected>Employee</option>
-        </select>
+      <div class="copy">
+        <small>Welcome back</small>
+        <h2>Your personal hub for clarity and productivity</h2>
       </div>
-      <div class="field">
-        <label for="pw">Password Lock 🔒</label>
-        <input id="pw" type="password" value="" autocomplete="current-password">
-        <button class="eye" id="eye" type="button" aria-label="Show password" style="top:calc(50% + 3px)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+    </section>
+
+    <section class="form">
+      <div class="inner">
+        <img class="mark" src="assets/hyna_logo.jpg" alt="HynaStudio">
+        <h1>Welcome Back</h1>
+        <p class="sub">Sign in to continue your journey</p>
+
+        <div class="field">
+          <label for="email">Corporate Email Address</label>
+          <input id="email" type="email" value="" autocomplete="email">
+          <p class="error-msg" id="emailError">Please enter a valid email address</p>
+        </div>
+        <div class="field" style="display:none">
+          <label for="role">Select Role</label>
+          <select id="role">
+            <option value="ceo">CEO</option>
+            <option value="manager">Manager</option>
+            <option value="hr">HR</option>
+            <option value="employee" selected>Employee</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pw">Password Lock 🔒</label>
+          <input id="pw" type="password" value="" autocomplete="current-password">
+          <button class="eye" id="eye" type="button" aria-label="Show password" style="top:calc(50% + 3px)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+          <p class="error-msg" id="pwError">Password must be at least 6 characters</p>
+        </div>
+
+        <button class="cta" type="button" id="ctaBtn">
+          <span class="btn-text">Sign In Credentials</span>
+          <span class="spinner"></span>
         </button>
-        <p class="error-msg" id="pwError">Password must be at least 6 characters</p>
       </div>
+    </section>
+  </main>
+  <script>
+    (function () {
+      var pw = document.getElementById('pw');
+      var eye = document.getElementById('eye');
+      var cta = document.getElementById('ctaBtn');
+      var emailInput = document.getElementById('email');
+      var emailError = document.getElementById('emailError');
+      var pwError = document.getElementById('pwError');
 
-      <button class="cta" type="button" id="ctaBtn">
-        <span class="btn-text">Sign In Credentials</span>
-        <span class="spinner"></span>
-      </button>
+      var roleSelect = document.getElementById('role');
 
-      <p class="forgot"><a href="#forgot">Forgot password?</a></p>
-    </div>
-  </section>
-</main>
-<script>
-(function(){
-  var pw = document.getElementById('pw');
-  var eye = document.getElementById('eye');
-  var cta = document.getElementById('ctaBtn');
-  var emailInput = document.getElementById('email');
-  var emailError = document.getElementById('emailError');
-  var pwError = document.getElementById('pwError');
+      // Demo credentials per role
+      var demoCreds = {
+        ceo: { email: 'ceo@hynastudio.com', pass: 'ceo@2026' },
+        manager: { email: 'manager@hynastudio.com', pass: 'manager@2026' },
+        hr: { email: 'hr@hynastudio.com', pass: 'hr@2026' },
+        employee: { email: 'employee@hynastudio.com', pass: 'emp@2026' }
+      };
 
-  var roleSelect = document.getElementById('role');
+      // Auto-fill credentials when role changes
+      function fillCreds() {
+        var creds = demoCreds[roleSelect.value] || demoCreds.employee;
+        emailInput.value = creds.email;
+        pw.value = creds.pass;
+        emailInput.classList.remove('input-error');
+        emailError.classList.remove('show');
+        pw.classList.remove('input-error');
+        pwError.classList.remove('show');
+      }
+      roleSelect.addEventListener('change', fillCreds);
+      fillCreds(); // fill on load
 
-  // Demo credentials per role
-  var demoCreds = {
-    ceo:      { email: 'ceo@hynastudio.com',      pass: 'ceo@2026' },
-    manager:  { email: 'manager@hynastudio.com',   pass: 'manager@2026' },
-    hr:       { email: 'hr@hynastudio.com',        pass: 'hr@2026' },
-    employee: { email: 'employee@hynastudio.com',  pass: 'emp@2026' }
-  };
+      // Toggle password visibility
+      eye.addEventListener('click', function () {
+        var show = pw.type === 'password';
+        pw.type = show ? 'text' : 'password';
+        eye.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      });
 
-  // Auto-fill credentials when role changes
-  function fillCreds() {
-    var creds = demoCreds[roleSelect.value] || demoCreds.employee;
-    emailInput.value = creds.email;
-    pw.value = creds.pass;
-    emailInput.classList.remove('input-error');
-    emailError.classList.remove('show');
-    pw.classList.remove('input-error');
-    pwError.classList.remove('show');
-  }
-  roleSelect.addEventListener('change', fillCreds);
-  fillCreds(); // fill on load
+      // Simple email validation
+      function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      }
 
-  // Toggle password visibility
-  eye.addEventListener('click', function(){
-    var show = pw.type === 'password';
-    pw.type = show ? 'text' : 'password';
-    eye.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-  });
+      // Auto-detect role from email
+      var emailRoleMap = {
+        'ceo@hynastudio.com': 'ceo',
+        'manager@hynastudio.com': 'manager',
+        'hr@hynastudio.com': 'hr',
+        'employee@hynastudio.com': 'employee'
+      };
 
-  // Simple email validation
-  function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
+      emailInput.addEventListener('input', function () {
+        var detected = emailRoleMap[emailInput.value.trim().toLowerCase()];
+        if (detected) roleSelect.value = detected;
+        emailInput.classList.remove('input-error');
+        emailError.classList.remove('show');
+      });
+      pw.addEventListener('input', function () {
+        pw.classList.remove('input-error');
+        pwError.classList.remove('show');
+      });
 
-  // Auto-detect role from email
-  var emailRoleMap = {
-    'ceo@hynastudio.com': 'ceo',
-    'manager@hynastudio.com': 'manager',
-    'hr@hynastudio.com': 'hr',
-    'employee@hynastudio.com': 'employee'
-  };
+      // Get Started → validate then navigate to dashboard
+      cta.addEventListener('click', function () {
+        var valid = true;
 
-  emailInput.addEventListener('input', function(){
-    var detected = emailRoleMap[emailInput.value.trim().toLowerCase()];
-    if (detected) roleSelect.value = detected;
-    emailInput.classList.remove('input-error');
-    emailError.classList.remove('show');
-  });
-  pw.addEventListener('input', function(){
-    pw.classList.remove('input-error');
-    pwError.classList.remove('show');
-  });
+        if (!emailInput.value.trim() || !isValidEmail(emailInput.value.trim())) {
+          emailInput.classList.add('input-error');
+          emailError.classList.add('show');
+          valid = false;
+        }
+        if (!pw.value.trim() || pw.value.trim().length < 6) {
+          pw.classList.add('input-error');
+          pwError.classList.add('show');
+          valid = false;
+        }
 
-  // Get Started → validate then navigate to dashboard
-  cta.addEventListener('click', function(){
-    var valid = true;
-    
-    if (!emailInput.value.trim() || !isValidEmail(emailInput.value.trim())) {
-      emailInput.classList.add('input-error');
-      emailError.classList.add('show');
-      valid = false;
-    }
-    if (!pw.value.trim() || pw.value.trim().length < 6) {
-      pw.classList.add('input-error');
-      pwError.classList.add('show');
-      valid = false;
-    }
+        if (!valid) return;
 
-    if (!valid) return;
+        // Show loading state
+        cta.classList.add('loading');
 
-    // Show loading state
-    cta.classList.add('loading');
+        // Simulate a brief auth delay, then redirect to dashboard with role
+        setTimeout(function () {
+          var role = document.getElementById('role').value;
+          sessionStorage.setItem('hyna_role', role);
+          window.location.href = 'dashboard.html';
+        }, 800);
+      });
 
-    // Simulate a brief auth delay, then redirect to dashboard with role
-    setTimeout(function(){
-      var role = document.getElementById('role').value;
-      sessionStorage.setItem('hyna_role', role);
-      window.location.href = 'dashboard.html';
-    }, 800);
-  });
-
-  // Allow Enter key to submit
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Enter') cta.click();
-  });
-})();
-</script>
+      // Allow Enter key to submit
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') cta.click();
+      });
+    })();
+  </script>
 </body>
+
 </html>
