@@ -67,6 +67,12 @@ label{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
 .foot{margin:28px 0 0;text-align:center;font-size:12px;color:#777}
 .foot a{color:var(--brand);text-decoration:none}
 .foot a:hover{text-decoration:underline}
+.field select{width:100%;height:36px;padding:0 18px;border:1.5px solid var(--line);border-radius:10px;
+  font:400 11.5px 'Inter',sans-serif;color:#333;background:#fff;outline:none;cursor:pointer;
+  transition:border-color .2s, box-shadow .2s;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center}
+.field select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,77,224,.15)}
 /* session expired message */
 .session-msg{margin:0 0 16px;font-size:11.5px;line-height:1.4;color:#c46e16;background:rgba(196,110,22,.08);
   border:1px solid rgba(196,110,22,.2);border-radius:8px;padding:10px 14px;text-align:center}
@@ -158,12 +164,21 @@ label{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
 
       <div class="field">
         <label for="email">Corporate Email Address</label>
-        <input id="email" type="email" value="demo@hynastudio.com" autocomplete="email">
+        <input id="email" type="email" value="" autocomplete="email">
         <p class="error-msg" id="emailError">Please enter a valid email address</p>
+      </div>
+      <div class="field" style="display:none">
+        <label for="role">Select Role</label>
+        <select id="role">
+          <option value="ceo">CEO</option>
+          <option value="manager">Manager</option>
+          <option value="hr">HR</option>
+          <option value="employee" selected>Employee</option>
+        </select>
       </div>
       <div class="field">
         <label for="pw">Password Lock 🔒</label>
-        <input id="pw" type="password" value="demo1234" autocomplete="current-password">
+        <input id="pw" type="password" value="" autocomplete="current-password">
         <button class="eye" id="eye" type="button" aria-label="Show password" style="top:calc(50% + 3px)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
@@ -188,6 +203,29 @@ label{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
   var emailError = document.getElementById('emailError');
   var pwError = document.getElementById('pwError');
 
+  var roleSelect = document.getElementById('role');
+
+  // Demo credentials per role
+  var demoCreds = {
+    ceo:      { email: 'ceo@hynastudio.com',      pass: 'ceo@2026' },
+    manager:  { email: 'manager@hynastudio.com',   pass: 'manager@2026' },
+    hr:       { email: 'hr@hynastudio.com',        pass: 'hr@2026' },
+    employee: { email: 'employee@hynastudio.com',  pass: 'emp@2026' }
+  };
+
+  // Auto-fill credentials when role changes
+  function fillCreds() {
+    var creds = demoCreds[roleSelect.value] || demoCreds.employee;
+    emailInput.value = creds.email;
+    pw.value = creds.pass;
+    emailInput.classList.remove('input-error');
+    emailError.classList.remove('show');
+    pw.classList.remove('input-error');
+    pwError.classList.remove('show');
+  }
+  roleSelect.addEventListener('change', fillCreds);
+  fillCreds(); // fill on load
+
   // Toggle password visibility
   eye.addEventListener('click', function(){
     var show = pw.type === 'password';
@@ -200,8 +238,17 @@ label{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
-  // Clear errors on input
+  // Auto-detect role from email
+  var emailRoleMap = {
+    'ceo@hynastudio.com': 'ceo',
+    'manager@hynastudio.com': 'manager',
+    'hr@hynastudio.com': 'hr',
+    'employee@hynastudio.com': 'employee'
+  };
+
   emailInput.addEventListener('input', function(){
+    var detected = emailRoleMap[emailInput.value.trim().toLowerCase()];
+    if (detected) roleSelect.value = detected;
     emailInput.classList.remove('input-error');
     emailError.classList.remove('show');
   });
@@ -230,8 +277,10 @@ label{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
     // Show loading state
     cta.classList.add('loading');
 
-    // Simulate a brief auth delay, then redirect to dashboard
+    // Simulate a brief auth delay, then redirect to dashboard with role
     setTimeout(function(){
+      var role = document.getElementById('role').value;
+      sessionStorage.setItem('hyna_role', role);
       window.location.href = 'dashboard.html';
     }, 800);
   });
