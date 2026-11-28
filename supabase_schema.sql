@@ -63,9 +63,7 @@ CREATE TABLE IF NOT EXISTS public.employees (
     badge VARCHAR(40) DEFAULT 'CORE',
     annual_ctc VARCHAR(50) DEFAULT '₹12,00,000',
     monthly_package VARCHAR(50) DEFAULT '₹1,00,000',
-    avatar_bg VARCHAR(20) DEFAULT '#e0e7ff',
-    avatar_color VARCHAR(20) DEFAULT '#4f46e5',
-    initials VARCHAR(6) DEFAULT 'HS',
+
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
@@ -358,8 +356,6 @@ SELECT
     e.role,
     e.designation,
     e.department,
-    e.avatar_bg,
-    e.avatar_color,
     COALESCE(SUM(xt.amount), 0)::INT AS total_xp,
     CASE 
         WHEN COALESCE(SUM(xt.amount), 0) >= 2000 THEN 'Master Lead'
@@ -380,7 +376,7 @@ FROM public.employees e
 LEFT JOIN public.xp_transactions xt ON e.id = xt.employee_id
 LEFT JOIN public.module_assignments ma ON e.id = ma.employee_id
 WHERE e.is_active = TRUE
-GROUP BY e.id, e.name, e.email, e.role, e.designation, e.department, e.avatar_bg, e.avatar_color
+GROUP BY e.id, e.name, e.email, e.role, e.designation, e.department
 ORDER BY total_xp DESC;
 
 CREATE OR REPLACE VIEW public.view_portfolio_kpis AS
