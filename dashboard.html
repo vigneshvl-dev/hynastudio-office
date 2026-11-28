@@ -923,8 +923,9 @@
       right: 24px;
       padding: 12px 20px;
       border-radius: 999px;
-      background: var(--bg);
-      box-shadow: var(--o);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
       font-weight: 600;
       color: var(--tx);
       z-index: 10000;
@@ -1375,7 +1376,7 @@
         <div class="av" style="width:34px;height:34px"><img src="assets/hyna_logo.jpg" alt="HynaStudio"></div>
         <div class="nm" style="font-size:12px;flex:1">
           HynaStudio
-          <small style="font-size:10px">Enterprise Core</small>
+          <small style="font-size:10px;color:var(--ac);font-weight:700">Office of the CEO</small>
         </div>
         <button class="logout-btn" onclick="window.location.href='index.html'" title="Logout">⏻</button>
       </div>
@@ -1400,55 +1401,114 @@
         <section id="v-dashboard">
           <div class="hd">
             <div>
-              <h1>Command Center <span class="badge">EXECUTIVE MODE</span></h1>
-              <div class="sub" id="live-time">Operating System • Core Operational</div>
+              <h1>CEO Executive Suite <span class="badge" style="background:#6d4de0;color:#fff;border:none">OFFICE OF THE CEO</span></h1>
+              <div class="sub" id="live-time">Enterprise Strategic Operations &amp; High-Level Governance</div>
             </div>
             <div class="top">
-              <button class="pill p" onclick="openVerifyAttendanceSwipe()">◷ Attendance</button>
-              <button class="pill" onclick="openLeaveModal()">▤ Apply Leave</button>
-              <button class="pill p" onclick="openBroadcastModal()">+ Broadcast</button>
+              <button class="pill p" onclick="openExecutiveDirectiveModal()">⚡ Issue Directive</button>
+              <button class="pill" onclick="openReviewApprovalsModal()">✓ Executive Approvals <span class="tag ok" style="margin-left:4px">3</span></button>
+              <button class="pill p" onclick="openBroadcastModal()">📢 Global Broadcast</button>
             </div>
           </div>
 
+          <!-- CEO Primary KPI Metrics -->
           <div class="grid g5">
-            <div class="card stat"><span class="ic">👥</span><small>HEADCOUNT</small><b id="stat-headcount">0</b><span
-                class="sub" id="stat-div">0 Divisions</span></div>
-            <div class="card stat"><span class="ic ok">◷</span><small>PRESENT</small><b id="stat-present">0</b><span
-                class="ok sub" id="stat-present-rate">0.0% rate</span></div>
-            <div class="card stat"><span class="ic wr">▤</span><small>ON LEAVE</small><b id="stat-leave">0</b><span
-                class="sub">Active Leaves</span></div>
-            <div class="card stat"><span class="ic">✓</span><small>APPROVALS</small><b>0</b><span class="sub">0
-                Pending</span></div>
-            <div class="card stat"><span class="ic er">◎</span><small>HELPDESK</small><b>0</b><span class="sub">0 High
-                Pri</span></div>
+            <div class="card stat">
+              <span class="ic ok">📈</span>
+              <small>TOTAL VALUATION / ARR</small>
+              <b style="color:var(--ac)">₹1.84 Cr</b>
+              <span class="ok sub">↑ 18.2% YoY Growth</span>
+            </div>
+            <div class="card stat">
+              <span class="ic ok">💰</span>
+              <small>MONTHLY RUNWAY / CASH</small>
+              <b>₹48.5 L</b>
+              <span class="sub">14.2 Mos Runway</span>
+            </div>
+            <div class="card stat">
+              <span class="ic">👥</span>
+              <small>TOTAL ORG HEADCOUNT</small>
+              <b id="stat-headcount">18</b>
+              <span class="sub" id="stat-div">4 Business Units</span>
+            </div>
+            <div class="card stat">
+              <span class="ic ok">▣</span>
+              <small>STRATEGIC PROJECTS</small>
+              <b>6 Active</b>
+              <span class="ok sub">100% On Schedule</span>
+            </div>
+            <div class="card stat">
+              <span class="ic wr">⚡</span>
+              <small>EXECUTIVE PENDING</small>
+              <b style="color:var(--wr)">3 Items</b>
+              <span class="wr sub">Action Required</span>
+            </div>
           </div>
 
           <div class="grid g2" style="margin-top:20px">
             <div class="grid">
+              <!-- Strategic Decisions & Approvals -->
               <div class="card">
                 <div class="hd">
                   <div>
-                    <h2>Action Required</h2>
-                    <div class="sub">Pending items awaiting review and executive sign-off</div>
+                    <h2>Executive Decision Queue</h2>
+                    <div class="sub">Matters requiring Chief Executive Officer sign-off and authorization</div>
                   </div>
-                  <span class="tag">0 TOTAL</span>
+                  <span class="tag wr">3 PENDING</span>
                 </div>
-                <div class="empty">
-                  <b class="ok">✓ All queues cleared</b>
-                  No pending requests or operational blocks found.
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+                  <div class="row" style="margin-top:0;justify-content:space-between">
+                    <div class="gr">
+                      <div style="font-weight:700">Q2 Infrastructure &amp; Cloud Expansion Budget</div>
+                      <div class="sub">CAPEX Allocation • ₹4,50,000 • Requested by VP Engineering</div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                      <button class="pill ok" onclick="toast('Budget Allocation Approved by CEO');this.closest('.row').remove()">Approve</button>
+                      <button class="pill er" onclick="toast('Sent for review');this.closest('.row').remove()">Review</button>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:0;justify-content:space-between">
+                    <div class="gr">
+                      <div style="font-weight:700">Executive Hire: Head of Product Design</div>
+                      <div class="sub">Offer Authorization • ₹22 LPA • HR Committee Recommendation</div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                      <button class="pill ok" onclick="toast('Offer Authorized by CEO');this.closest('.row').remove()">Sign Off</button>
+                      <button class="pill er" onclick="toast('Requested revisions');this.closest('.row').remove()">Revise</button>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:0;justify-content:space-between">
+                    <div class="gr">
+                      <div style="font-weight:700">Enterprise SLA Partnership Agreement: Tier-1 Client</div>
+                      <div class="sub">Legal Contract Authorization • ₹42,00,000 Annual Value</div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                      <button class="pill ok" onclick="toast('Contract Signed by CEO');this.closest('.row').remove()">Authorize</button>
+                      <button class="pill er" onclick="toast('Legal queried');this.closest('.row').remove()">Hold</button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
+              <!-- Bulletins & Directives -->
               <div class="card">
                 <div class="hd">
                   <div>
-                    <h2>Bulletins &amp; Directives</h2>
-                    <div class="sub">Official releases, corporate protocols, and guidelines</div>
+                    <h2>CEO Directives &amp; Enterprise Vision</h2>
+                    <div class="sub">Official executive releases, company missions, and corporate guidelines</div>
                   </div>
-                  <button class="pill p" onclick="openBroadcastModal()">+ New Bulletin</button>
+                  <button class="pill p" onclick="openExecutiveDirectiveModal()">+ Issue Directive</button>
                 </div>
                 <div id="bulletin-list">
-                  <div class="empty" id="bulletin-empty">
+                  <div class="row" style="border-radius:14px;display:block">
+                    <span class="tag" style="background:rgba(109,77,224,0.1);color:var(--ac);border-color:rgba(109,77,224,0.3)">EXECUTIVE DIRECTIVE #24</span>
+                    <span class="tag ok">ACTIVE</span>
+                    <span class="sub" style="float:right">Nov 28, 2026</span>
+                    <div class="nm" style="margin-top:8px">FY27 Product Scaling &amp; AI Integration Mandate
+                      <small style="color:var(--mu);margin-top:4px">All department leads are requested to submit quarterly automation and efficiency benchmarks by Friday.</small>
+                    </div>
+                  </div>
+                  <div class="empty hide" id="bulletin-empty">
                     <b>No active bulletins</b>
                     Publish directives and announcements to the entire team.
                   </div>
@@ -1457,18 +1517,81 @@
             </div>
 
             <div class="grid" style="align-content:start">
+              <!-- Strategic Business Units & Performance -->
               <div class="card">
                 <div class="hd">
-                  <h2>Live Pulse</h2>
-                  <button class="pill p" onclick="toast('Pulse log refreshed')">Refresh</button>
+                  <h2>Division Performance</h2>
+                  <button class="pill" onclick="toast('Division metrics synchronized')">Audit</button>
                 </div>
-                <div class="empty">All services and systems operational</div>
+                <div style="display:flex;flex-direction:column;gap:12px;margin-top:10px">
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px">
+                      <span>Engineering &amp; Platform</span>
+                      <span class="ok">96% SLA</span>
+                    </div>
+                    <div style="width:100%;height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden">
+                      <div style="width:96%;height:100%;background:var(--ok)"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px">
+                      <span>Product Design &amp; Studio</span>
+                      <span class="ok">100% On-Target</span>
+                    </div>
+                    <div style="width:100%;height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden">
+                      <div style="width:100%;height:100%;background:var(--ac)"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px">
+                      <span>Enterprise Growth &amp; Sales</span>
+                      <span class="ok">112% Quota</span>
+                    </div>
+                    <div style="width:100%;height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden">
+                      <div style="width:100%;height:100%;background:#3b82f6"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px">
+                      <span>Operations &amp; Finance</span>
+                      <span class="ok">Optimal</span>
+                    </div>
+                    <div style="width:100%;height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden">
+                      <div style="width:92%;height:100%;background:var(--ok)"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              <!-- Executive Agenda & Milestones -->
               <div class="card">
                 <div class="hd">
-                  <h2>Celebrations &amp; Milestones</h2>
+                  <h2>CEO Schedule &amp; Key Milestones</h2>
+                  <span class="tag">TODAY</span>
                 </div>
-                <div class="empty">No scheduled events for this cycle</div>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+                  <div class="row" style="margin-top:0">
+                    <span class="ic ok">🕒</span>
+                    <div class="gr">
+                      <div style="font-size:13px;font-weight:700">Board of Directors Strategy Sync</div>
+                      <div class="sub">11:30 AM • Executive Boardroom</div>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:0">
+                    <span class="ic">🤝</span>
+                    <div class="gr">
+                      <div style="font-size:13px;font-weight:700">Investor Briefing: Series A Milestone</div>
+                      <div class="sub">03:00 PM • Video Conference</div>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:0">
+                    <span class="ic er">🎯</span>
+                    <div class="gr">
+                      <div style="font-size:13px;font-weight:700">Quarterly All-Hands Townhall</div>
+                      <div class="sub">05:30 PM • Main Auditorium &amp; Live Stream</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1476,33 +1599,87 @@
 
         <!-- SECTION: Projects -->
         <section id="v-projects" class="hide">
-          <div class="hd">
-            <div>
-              <h1>Project Hub</h1>
-              <div class="sub">Track production sprints, roadmap milestones, and technical resources.</div>
-            </div>
-            <button class="pill p" onclick="openNewProjectModal()">+ New Project</button>
-          </div>
-
-          <div id="project-container">
-            <div class="card" id="active-project-card">
-              <div class="hd">
-                <div>
-                  <h2><span class="tag" id="proj-tag">PRJ-01</span> <span id="proj-title">Core Platform
-                      Architecture</span></h2>
-                  <div class="sub" id="proj-desc">Next-generation enterprise system and core infrastructure engineering.
-                  </div>
-                </div>
-                <div class="top">
-                  <span class="pill" id="proj-lead">Lead: Engineering Lead</span>
-                  <span class="pill ok">⟳ Live Sync</span>
-                  <button class="pill er" onclick="archiveProject()">Archive</button>
-                </div>
+          <!-- Top Bar: Title, Team Avatars, Invite, + New Project -->
+          <div class="hd" style="align-items:center;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:16px">
+              <h1 style="font-size:24px;margin:0">All Projects</h1>
+              <div style="display:flex;align-items:center;margin-left:8px">
+                <div style="width:28px;height:28px;border-radius:50%;background:#e0e7ff;color:#4f46e5;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid #fff">AI</div>
+                <div style="width:28px;height:28px;border-radius:50%;background:#dbeafe;color:#2563eb;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;margin-left:-8px">HS</div>
+                <div style="width:28px;height:28px;border-radius:50%;background:#fef3c7;color:#d97706;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;margin-left:-8px">👑</div>
               </div>
             </div>
+            <div class="top" style="gap:10px">
+              <button class="pill" onclick="openAssignTeamModal()">👤+ Invite</button>
+              <button class="pill p" style="background:#d92662;color:#ffffff;border:none;box-shadow:0 2px 8px rgba(217,38,98,0.25)" onclick="openNewProjectModal()">+ New Project</button>
+            </div>
+          </div>
 
-            <div class="tabs" style="margin:20px 0" id="ptabs"></div>
-            <div id="pbody"></div>
+          <!-- Controls Bar: Views tabs & Filter/Group controls -->
+          <div class="card" style="padding:10px 16px;margin-bottom:14px;border-radius:14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+              <!-- View Switcher -->
+              <div id="proj-views-bar" style="display:flex;align-items:center;gap:6px">
+                <button class="pill" style="border:none;box-shadow:none;padding:6px 12px;font-size:13px" onclick="switchProjectView('Calendar', this)">📅 Calendar</button>
+                <button class="pill on" style="border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700" onclick="switchProjectView('List', this)">☰ List</button>
+                <button class="pill" style="border:none;box-shadow:none;padding:6px 12px;font-size:13px" onclick="switchProjectView('Cards', this)">⊞ Cards</button>
+                <button class="pill" style="border:none;box-shadow:none;padding:6px 12px;font-size:13px" onclick="switchProjectView('Kanban', this)">☷ Kanban</button>
+              </div>
+
+              <!-- Filter / Dropdown options -->
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <div style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:10px;padding:5px 10px;background:#ffffff;font-size:12px;font-weight:600">
+                  <span style="color:var(--mu)">Show:</span>
+                  <select id="proj-filter-status" onchange="filterProjectsTable()" style="border:none;outline:none;font-weight:700;color:var(--tx);cursor:pointer;background:transparent;padding:0">
+                    <option value="all">All Projects</option>
+                    <option value="Active">Active</option>
+                    <option value="Design">Design</option>
+                    <option value="Brief">Brief</option>
+                  </select>
+                </div>
+                <div style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:10px;padding:5px 10px;background:#ffffff;font-size:12px;font-weight:600">
+                  <span style="color:var(--mu)">Sort:</span>
+                  <select id="proj-sort-select" onchange="sortProjectsTable(this.value)" style="border:none;outline:none;font-weight:700;color:var(--tx);cursor:pointer;background:transparent;padding:0">
+                    <option value="name">Name</option>
+                    <option value="deadline">Deadline</option>
+                    <option value="priority">Priority</option>
+                  </select>
+                </div>
+                <div style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:10px;padding:5px 10px;background:#ffffff;font-size:12px;font-weight:600">
+                  <span style="color:var(--mu)">Group:</span>
+                  <select onchange="toast('Grouped by ' + this.value)" style="border:none;outline:none;font-weight:700;color:var(--tx);cursor:pointer;background:transparent;padding:0">
+                    <option>Design</option>
+                    <option>Engineering</option>
+                    <option>All Divisions</option>
+                  </select>
+                </div>
+                <button class="pill" style="padding:6px 12px;font-size:12px" onclick="openFilterModal()">⚙ Add Filter</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- All Projects Interactive Data Table -->
+          <div class="card" style="padding:0;overflow:hidden;border-radius:16px">
+            <div class="scroll">
+              <table style="width:100%;border-collapse:collapse;margin:0">
+                <thead>
+                  <tr style="background:#f9fafb;border-bottom:1px solid var(--border)">
+                    <th style="padding:14px 16px;width:36px;text-align:center"><input type="checkbox" id="proj-check-all" onclick="toggleAllProjectChecks(this.checked)"></th>
+                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PROJECT NAME</th>
+                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">START DATE</th>
+                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">DEADLINE</th>
+                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PROJECT AMOUNT ✎</th>
+                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">STATUS ✎</th>
+                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PEOPLE</th>
+                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PRIORITY ✎</th>
+                    <th style="padding:14px 16px;text-align:center;width:40px;color:var(--mu);cursor:pointer" onclick="openNewProjectModal()" title="Add Project">+</th>
+                  </tr>
+                </thead>
+                <tbody id="projects-table-body">
+                  <!-- Dynamically rendered via renderProjectsTable() -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -1807,6 +1984,54 @@
     }
 
     /* Modals */
+    function openExecutiveDirectiveModal() {
+      $("#modal-box").innerHTML = `
+        <div class="hd"><h2>Issue CEO Executive Directive</h2><button class="pill" onclick="closeModal()">✕</button></div>
+        <div class="field"><input id="b-title" placeholder="Directive Title (e.g. FY27 Strategic Mandate)"></div>
+        <div class="field">
+          <select id="b-tag">
+            <option>EXECUTIVE DIRECTIVE</option>
+            <option>STRATEGIC INITIATIVE</option>
+            <option>BOARD MANDATE</option>
+            <option>POLICY MEMORANDUM</option>
+          </select>
+        </div>
+        <div class="field"><textarea id="b-msg" rows="4" placeholder="Directive details, strategic milestones, departmental expectations…"></textarea></div>
+        <div class="top" style="margin-top:18px;justify-content:flex-end">
+          <button class="pill" onclick="closeModal()">Cancel</button>
+          <button class="pill p" onclick="postBroadcast()">Publish to Organization</button>
+        </div>
+      `;
+      $("#modal-layer").classList.remove("hide");
+    }
+
+    function openReviewApprovalsModal() {
+      $("#modal-box").innerHTML = `
+        <div class="hd"><h2>Executive Approvals Queue</h2><button class="pill" onclick="closeModal()">✕</button></div>
+        <div style="font-size:13px;color:var(--mu);margin-bottom:14px">Pending authorization matters submitted by department heads.</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="row" style="margin-top:0;justify-content:space-between">
+            <div class="gr">
+              <div style="font-weight:700">Q2 Infrastructure Budget (₹4,50,000)</div>
+              <div class="sub">Submitted by Engineering Lead</div>
+            </div>
+            <button class="pill ok" onclick="toast('Budget Approved');closeModal()">Authorize</button>
+          </div>
+          <div class="row" style="margin-top:0;justify-content:space-between">
+            <div class="gr">
+              <div style="font-weight:700">Executive Hire: Head of Product Design</div>
+              <div class="sub">Submitted by HR Lead</div>
+            </div>
+            <button class="pill ok" onclick="toast('Hiring Offer Signed');closeModal()">Sign Off</button>
+          </div>
+        </div>
+        <div class="top" style="margin-top:18px;justify-content:flex-end">
+          <button class="pill" onclick="closeModal()">Close</button>
+        </div>
+      `;
+      $("#modal-layer").classList.remove("hide");
+    }
+
     function openBroadcastModal() {
       $("#modal-box").innerHTML = `
     <div class="hd"><h2>New Corporate Broadcast</h2><button class="pill" onclick="closeModal()">✕</button></div>
@@ -2209,6 +2434,261 @@
       toast("Risk logged to register");
     }
 
+    /* All Projects Interactive SaaS Table System */
+    const allProjectsData = [
+      { id: "p1", name: "Managers Meeting Q1", icon: "📊", iconBg: "#eff6ff", iconColor: "#3b82f6", start: "16/07/2024", deadline: "24/10/2024", amount: "₹4,50,000", status: "Active", people: [{ initials: "H", bg: "#fef3c7", color: "#d97706" }, { initials: "👩", bg: "#dbeafe", color: "#2563eb" }], priority: "High", priorityColor: "#ef4444" },
+      { id: "p2", name: "Managers Meeting Q1", icon: "🦁", iconBg: "#fff1f2", iconColor: "#e11d48", start: "16/07/2024", deadline: "24/10/2024", amount: "₹2,80,000", status: "Active", people: [{ initials: "H", bg: "#fef3c7", color: "#d97706" }, { initials: "👩", bg: "#dcfce7", color: "#16a34a" }], priority: "Medium", priorityColor: "#f59e0b" },
+      { id: "p3", name: "Homepage Video", icon: "🎬", iconBg: "#f0fdf4", iconColor: "#16a34a", start: "16/07/2024", deadline: "24/10/2024", amount: "₹1,20,000", status: "Design", people: [{ initials: "👨", bg: "#e0e7ff", color: "#4f46e5" }, { initials: "🧔", bg: "#dbeafe", color: "#2563eb" }], priority: "Low", priorityColor: "#3b82f6" },
+      { id: "p4", name: "Website Update", icon: "🌐", iconBg: "#f5f3ff", iconColor: "#7c3aed", start: "16/07/2024", deadline: "24/10/2024", amount: "₹3,10,000", status: "Active", people: [{ initials: "HM", bg: "#fee2e2", color: "#b91c1c" }], priority: "Medium", priorityColor: "#f59e0b" },
+      { id: "p5", name: "Video Feature", icon: "🍔", iconBg: "#fefce8", iconColor: "#ca8a04", start: "16/07/2024", deadline: "24/10/2024", amount: "₹6,40,000", status: "Brief", people: [{ initials: "👨", bg: "#fef3c7", color: "#d97706" }, { initials: "M", bg: "#fce7f3", color: "#db2777" }, { initials: "🧔", bg: "#e0e7ff", color: "#4f46e5" }], priority: "Medium", priorityColor: "#f59e0b" },
+      { id: "p6", name: "Homepage Video", icon: "📑", iconBg: "#eff6ff", iconColor: "#2563eb", start: "16/07/2024", deadline: "24/10/2024", amount: "₹1,75,000", status: "Design", people: [{ initials: "👨", bg: "#fef3c7", color: "#d97706" }, { initials: "T", bg: "#ccfbf1", color: "#0d9488" }, { initials: "👩", bg: "#dbeafe", color: "#2563eb" }], priority: "Medium", priorityColor: "#f59e0b" },
+      { id: "p7", name: "Website Update", icon: "☕", iconBg: "#f0fdf4", iconColor: "#15803d", start: "16/07/2024", deadline: "24/10/2024", amount: "₹2,50,000", status: "Active", people: [{ initials: "HM", bg: "#fee2e2", color: "#b91c1c" }], priority: "Medium", priorityColor: "#f59e0b" },
+      { id: "p8", name: "Video Feature", icon: "📊", iconBg: "#eff6ff", iconColor: "#3b82f6", start: "16/07/2024", deadline: "24/10/2024", amount: "₹5,20,000", status: "Active", people: [{ initials: "👨", bg: "#e0e7ff", color: "#4f46e5" }, { initials: "👩", bg: "#fce7f3", color: "#db2777" }], priority: "High", priorityColor: "#ef4444" },
+      { id: "p9", name: "Homepage Video", icon: "🎬", iconBg: "#f0fdf4", iconColor: "#16a34a", start: "16/07/2024", deadline: "24/10/2024", amount: "₹95,000", status: "Design", people: [{ initials: "TA", bg: "#d1fae5", color: "#059669" }], priority: "Medium", priorityColor: "#f59e0b" },
+      { id: "p10", name: "Website Update", icon: "🏆", iconBg: "#fefce8", iconColor: "#b45309", start: "16/07/2024", deadline: "24/10/2024", amount: "₹4,10,000", status: "Active", people: [{ initials: "H", bg: "#fef3c7", color: "#d97706" }, { initials: "👨", bg: "#dbeafe", color: "#2563eb" }, { initials: "🧔", bg: "#e0e7ff", color: "#4f46e5" }], priority: "High", priorityColor: "#ef4444" }
+    ];
+
+    function getStatusBadgeStyle(st) {
+      if (st === "Active") return "background:#dcfce7;color:#15803d";
+      if (st === "Design") return "background:#f3e8ff;color:#7e22ce";
+      if (st === "Brief") return "background:#ffedd5;color:#c2410c";
+      return "background:#f3f4f6;color:#374151";
+    }
+
+    function renderProjectsTable(data = allProjectsData) {
+      const tbody = $("#projects-table-body");
+      if (!tbody) return;
+      tbody.innerHTML = data.map(p => `
+        <tr style="border-bottom:1px solid var(--border);transition:background .12s ease" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#ffffff'">
+          <td style="padding:12px 16px;text-align:center"><input type="checkbox" class="proj-row-check"></td>
+          <td style="padding:12px 16px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:8px;background:${p.iconBg};color:${p.iconColor};display:grid;place-items:center;font-size:16px;flex-shrink:0">${p.icon}</div>
+              <span style="font-weight:700;color:var(--tx);font-size:13px">${p.name}</span>
+            </div>
+          </td>
+          <td style="padding:12px 16px;color:var(--mu);font-size:12px;font-weight:600">${p.start}</td>
+          <td style="padding:12px 16px;color:var(--mu);font-size:12px;font-weight:600">${p.deadline}</td>
+          <td style="padding:12px 16px;font-weight:700;font-size:13px;color:var(--tx)">${p.amount}</td>
+          <td style="padding:12px 16px">
+            <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block;${getStatusBadgeStyle(p.status)}">${p.status}</span>
+          </td>
+          <td style="padding:12px 16px">
+            <div style="display:flex;align-items:center">
+              ${p.people.map((m, idx) => `
+                <div style="width:24px;height:24px;border-radius:50%;background:${m.bg};color:${m.color};font-size:10px;font-weight:700;display:grid;place-items:center;border:1.5px solid #fff;${idx > 0 ? 'margin-left:-6px;' : ''}">${m.initials}</div>
+              `).join('')}
+            </div>
+          </td>
+          <td style="padding:12px 16px">
+            <div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--tx)">
+              <span style="width:7px;height:7px;border-radius:50%;background:${p.priorityColor}"></span>
+              ${p.priority}
+            </div>
+          </td>
+          <td style="padding:12px 16px;text-align:center">
+            <button style="border:none;background:transparent;color:var(--mu);cursor:pointer;font-size:16px;padding:4px" onclick="editProjectMenu('${p.id}')">⋮</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function sortProjectsTable(sortBy) {
+      if (sortBy === "name") {
+        allProjectsData.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (sortBy === "deadline") {
+        allProjectsData.sort((a, b) => a.deadline.localeCompare(b.deadline));
+      } else if (sortBy === "priority") {
+        const order = { High: 1, Medium: 2, Low: 3 };
+        allProjectsData.sort((a, b) => (order[a.priority] || 9) - (order[b.priority] || 9));
+      }
+      renderProjectsTable();
+      toast(`Sorted by ${sortBy}`);
+    }
+
+    function openFilterModal() {
+      const q = prompt("Filter projects by keyword (name or tag):", "");
+      if (q !== null) {
+        if (!q.trim()) {
+          renderProjectsTable(allProjectsData);
+        } else {
+          const res = allProjectsData.filter(p => p.name.toLowerCase().includes(q.toLowerCase()));
+          renderProjectsTable(res);
+          toast(`Found ${res.length} matching project(s)`);
+        }
+      }
+    }
+
+    function filterProjectsTable() {
+      const val = $("#proj-filter-status").value;
+      if (val === "all") {
+        renderProjectsTable(allProjectsData);
+      } else {
+        const filtered = allProjectsData.filter(p => p.status.toLowerCase() === val.toLowerCase());
+        renderProjectsTable(filtered);
+      }
+    }
+
+    function editProjectMenu(id) {
+      const p = allProjectsData.find(item => item.id === id);
+      if (!p) return;
+      const newStatus = prompt(`Change status for "${p.name}" (Active, Design, Brief):`, p.status);
+      if (newStatus) {
+        p.status = newStatus.trim();
+        renderProjectsTable();
+        toast(`Updated status to ${p.status}`);
+      }
+    }
+
+    function openNewProjectModal() {
+      $("#modal-box").innerHTML = `
+        <div class="hd" style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:18px">
+          <h2>Create New Project</h2>
+          <button class="pill" onclick="closeModal()">✕</button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <!-- 1. PROJECT NAME -->
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PROJECT NAME</label>
+            <input id="np-name" placeholder="e.g. Website Redesign, Mobile App v2" style="width:100%">
+          </div>
+
+          <!-- 2. DATES: START DATE & DEADLINE -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">START DATE</label>
+              <input id="np-start" type="date" value="2026-11-28" style="width:100%">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">DEADLINE</label>
+              <input id="np-deadline" type="date" value="2027-02-15" style="width:100%">
+            </div>
+          </div>
+
+          <!-- 3. PROJECT AMOUNT & STATUS -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PROJECT AMOUNT (₹ / $)</label>
+              <input id="np-amount" placeholder="e.g. ₹5,00,000" value="₹5,00,000" style="width:100%">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">STATUS</label>
+              <select id="np-status" style="width:100%">
+                <option value="Active">Active</option>
+                <option value="Design">Design</option>
+                <option value="Brief">Brief</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 4. PEOPLE & PRIORITY -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PEOPLE (ASSIGN TEAM)</label>
+              <input id="np-people" placeholder="Initials or names (e.g. H, HM, TA)" value="H, HM" style="width:100%">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PRIORITY</label>
+              <select id="np-priority" style="width:100%">
+                <option value="High">● High</option>
+                <option value="Medium" selected>● Medium</option>
+                <option value="Low">● Low</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="top" style="margin-top:22px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:14px">
+          <button class="pill" onclick="closeModal()">Cancel</button>
+          <button class="pill p" style="background:#d92662;color:#fff;border:none;box-shadow:0 2px 10px rgba(217,38,98,0.3)" onclick="saveNewProjectItem()">+ Add Project</button>
+        </div>
+      `;
+      $("#modal-layer").classList.remove("hide");
+    }
+
+    function saveNewProjectItem() {
+      try {
+        const nameEl = document.getElementById("np-name");
+        const name = nameEl ? nameEl.value.trim() : "";
+        if (!name) {
+          toast("Project Name is required");
+          if (nameEl) nameEl.focus();
+          return;
+        }
+
+        const startEl = document.getElementById("np-start");
+        const deadlineEl = document.getElementById("np-deadline");
+        const statusEl = document.getElementById("np-status");
+        const priorityEl = document.getElementById("np-priority");
+        const amountEl = document.getElementById("np-amount");
+        const peopleEl = document.getElementById("np-people");
+
+        const formatDate = (val) => {
+          if (!val) return "28/11/2026";
+          const parts = val.split("-");
+          return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : val;
+        };
+
+        const start = startEl && startEl.value ? formatDate(startEl.value) : "28/11/2026";
+        const deadline = deadlineEl && deadlineEl.value ? formatDate(deadlineEl.value) : "15/02/2027";
+        const status = statusEl ? statusEl.value : "Active";
+        const priority = priorityEl ? priorityEl.value : "Medium";
+        const amount = amountEl && amountEl.value.trim() ? amountEl.value.trim() : "₹5,00,000";
+        const peopleRaw = peopleEl && peopleEl.value.trim() ? peopleEl.value.trim() : "HS";
+
+        const priorityColor = priority === "High" ? "#ef4444" : priority === "Medium" ? "#f59e0b" : "#3b82f6";
+        
+        const avatarBgs = [
+          { bg: "#fef3c7", color: "#d97706" },
+          { bg: "#dbeafe", color: "#2563eb" },
+          { bg: "#dcfce7", color: "#16a34a" },
+          { bg: "#fce7f3", color: "#db2777" },
+          { bg: "#e0e7ff", color: "#4f46e5" }
+        ];
+
+        const people = peopleRaw.split(",").map((item, idx) => {
+          const init = item.trim();
+          const theme = avatarBgs[idx % avatarBgs.length];
+          return {
+            initials: init || "U",
+            bg: theme.bg,
+            color: theme.color
+          };
+        });
+
+        allProjectsData.unshift({
+          id: "p" + Date.now(),
+          name: name,
+          icon: "🚀",
+          iconBg: "#eff6ff",
+          iconColor: "#2563eb",
+          start: start,
+          deadline: deadline,
+          amount: amount,
+          status: status,
+          people: people,
+          priority: priority,
+          priorityColor: priorityColor
+        });
+
+        renderProjectsTable();
+        closeModal();
+        toast(`Project "${name}" added to portfolio!`);
+      } catch (err) {
+        console.error("Error creating project:", err);
+        toast("Error saving project: " + err.message);
+      }
+    }
+
+    function openAssignTeamModal() {
+      const email = prompt("Invite team member by email to projects:");
+      if (email) toast(`Invitation sent to ${email}`);
+    }
+
+    // Initialize projects table
+    renderProjectsTable();
+
     function createIssue() {
       const val = $("#issue-text").value.trim();
       if (!val) return;
@@ -2224,41 +2704,10 @@
       toast(`Created Issue HS-${num}`);
     }
 
-    function openNewProjectModal() {
-      $("#modal-box").innerHTML = `
-    <div class="hd"><h2>Create Project Workspace</h2><button class="pill" onclick="closeModal()">✕</button></div>
-    <div class="field"><input id="np-title" placeholder="Project Name"></div>
-    <div class="field"><input id="np-code" placeholder="Project Code / Key (e.g. CORE)" value="PRJ"></div>
-    <div class="field"><input id="np-lead" placeholder="Project Lead" value="Engineering Lead"></div>
-    <div class="field"><textarea id="np-desc" placeholder="Scope and objectives…" style="border-radius:18px;width:100%"></textarea></div>
-    <div class="top" style="margin-top:18px;justify-content:flex-end">
-      <button class="pill" onclick="closeModal()">Cancel</button>
-      <button class="pill p" onclick="saveNewProject()">Create Workspace</button>
-    </div>
-  `;
-      $("#modal-layer").classList.remove("hide");
-    }
-
-    function saveNewProject() {
-      const title = $("#np-title").value.trim();
-      const code = $("#np-code").value.trim() || "PRJ";
-      const lead = $("#np-lead").value.trim() || "Project Lead";
-      const desc = $("#np-desc").value.trim();
-      if (!title) { toast("Project title is required"); return; }
-
-      $("#proj-tag").textContent = code;
-      $("#proj-title").textContent = title;
-      $("#proj-lead").textContent = "Lead: " + lead;
-      if (desc) $("#proj-desc").textContent = desc;
-
-      closeModal();
-      toast(`Workspace ${title} initialized`);
-    }
-
-    function archiveProject() {
-      if (confirm("Archive this project workspace?")) {
-        toast("Project workspace archived");
-      }
+    function switchProjectView(viewName, btn) {
+      document.querySelectorAll("#proj-views-bar .pill").forEach(b => b.classList.remove("on"));
+      if (btn) btn.classList.add("on");
+      toast(`${viewName} view selected`);
     }
 
     /* Global Search */
