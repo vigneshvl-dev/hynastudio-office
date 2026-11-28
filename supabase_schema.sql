@@ -1,4 +1,32 @@
--- 0. EXTENSIONS
+-- 0. CLEAN UP EXISTING OBJECTS (safe to re-run)
+DROP VIEW IF EXISTS public.view_portfolio_kpis CASCADE;
+DROP VIEW IF EXISTS public.view_employee_leaderboard CASCADE;
+DROP TRIGGER IF EXISTS trg_auto_award_module_xp ON public.module_assignments;
+DROP TRIGGER IF EXISTS trg_module_assignment_progress ON public.module_assignments;
+DROP TRIGGER IF EXISTS trg_proj_module_progress ON public.project_modules;
+DROP FUNCTION IF EXISTS public.fn_auto_award_module_xp() CASCADE;
+DROP FUNCTION IF EXISTS public.fn_recalculate_project_progress() CASCADE;
+DROP TABLE IF EXISTS public.helpdesk_tickets CASCADE;
+DROP TABLE IF EXISTS public.payroll_records CASCADE;
+DROP TABLE IF EXISTS public.leave_requests CASCADE;
+DROP TABLE IF EXISTS public.attendance CASCADE;
+DROP TABLE IF EXISTS public.xp_transactions CASCADE;
+DROP TABLE IF EXISTS public.module_assignments CASCADE;
+DROP TABLE IF EXISTS public.project_modules CASCADE;
+DROP TABLE IF EXISTS public.project_members CASCADE;
+DROP TABLE IF EXISTS public.projects CASCADE;
+DROP TABLE IF EXISTS public.executive_approvals CASCADE;
+DROP TABLE IF EXISTS public.bulletins CASCADE;
+DROP TABLE IF EXISTS public.employees CASCADE;
+DROP TYPE IF EXISTS user_role CASCADE;
+DROP TYPE IF EXISTS project_status CASCADE;
+DROP TYPE IF EXISTS project_priority CASCADE;
+DROP TYPE IF EXISTS attendance_status CASCADE;
+DROP TYPE IF EXISTS leave_status CASCADE;
+DROP TYPE IF EXISTS payroll_status CASCADE;
+DROP TYPE IF EXISTS ticket_priority CASCADE;
+
+-- 0B. EXTENSIONS
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
