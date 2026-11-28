@@ -1353,6 +1353,141 @@
         padding: 12px;
       }
     }
+
+    /* Projects Module, Checklist, Progress & XP Extensions */
+    .modal-card.wide {
+      max-width: 740px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .proj-progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .proj-progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--ac), #8b5cf6);
+      transition: width 0.25s ease;
+    }
+
+    .proj-progress-fill.done {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+
+    .proj-member-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 4px 2px;
+    }
+
+    .proj-member-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      cursor: pointer;
+      font-size: 12px;
+      transition: border-color .15s, background .15s;
+      user-select: none;
+    }
+
+    .proj-member-chip.selected {
+      border-color: var(--ac);
+      background: rgba(109, 77, 224, 0.06);
+    }
+
+    .proj-checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      transition: border-color .15s, background .15s;
+    }
+
+    .proj-checklist-item.completed {
+      border-color: rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.04);
+    }
+
+    .proj-check-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      border: 2px solid var(--ac);
+      background: #ffffff;
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all .15s ease;
+    }
+
+    .proj-check-btn:hover {
+      background: rgba(109, 77, 224, 0.1);
+    }
+
+    .proj-check-btn.checked {
+      background: var(--ok);
+      border-color: var(--ok);
+      cursor: default;
+    }
+
+    .proj-xp-pill {
+      font: 700 11px/1 ui-monospace, monospace;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(109, 77, 224, 0.1);
+      color: var(--ac);
+      border: 1px solid rgba(109, 77, 224, 0.22);
+      white-space: nowrap;
+    }
+
+    .proj-xp-pill.earned {
+      background: rgba(16, 185, 129, 0.1);
+      color: #059669;
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+
+    .proj-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .proj-kanban-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .proj-kanban-col {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
   </style>
 </head>
 
@@ -1599,88 +1734,94 @@
 
         <!-- SECTION: Projects -->
         <section id="v-projects" class="hide">
-          <!-- Top Bar: Title, Team Avatars, Invite, + New Project -->
-          <div class="hd" style="align-items:center;margin-bottom:14px">
-            <div style="display:flex;align-items:center;gap:16px">
-              <h1 style="font-size:24px;margin:0">All Projects</h1>
-              <div style="display:flex;align-items:center;margin-left:8px">
-                <div style="width:28px;height:28px;border-radius:50%;background:#e0e7ff;color:#4f46e5;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid #fff">AI</div>
-                <div style="width:28px;height:28px;border-radius:50%;background:#dbeafe;color:#2563eb;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;margin-left:-8px">HS</div>
-                <div style="width:28px;height:28px;border-radius:50%;background:#fef3c7;color:#d97706;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;margin-left:-8px">👑</div>
+          <div id="proj-list-shell">
+            <!-- Top Bar: Title, Team Avatars / XP Summary, Invite, + New Project -->
+            <div class="hd" style="align-items:center;margin-bottom:14px">
+              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                <h1 id="proj-page-title" style="font-size:24px;margin:0">All Projects</h1>
+                <div id="proj-header-avatars" style="display:flex;align-items:center"></div>
+                <span id="proj-header-xp-badge" class="proj-xp-pill hide"></span>
+              </div>
+              <div class="top" style="gap:10px" id="proj-header-actions">
+                <button class="pill" id="proj-leaderboard-btn" onclick="openXPLeaderboardModal()">🏆 XP Leaderboard</button>
+                <button class="pill" id="proj-invite-btn" onclick="openAssignTeamModal()">👤+ Invite</button>
+                <button class="pill p" id="proj-new-btn" style="background:#d92662;color:#ffffff;border:none;box-shadow:0 2px 8px rgba(217,38,98,0.25)" onclick="openNewProjectModal()">+ New Project</button>
               </div>
             </div>
-            <div class="top" style="gap:10px">
-              <button class="pill" onclick="openAssignTeamModal()">👤+ Invite</button>
-              <button class="pill p" style="background:#d92662;color:#ffffff;border:none;box-shadow:0 2px 8px rgba(217,38,98,0.25)" onclick="openNewProjectModal()">+ New Project</button>
-            </div>
-          </div>
 
-          <!-- Controls Bar: Views tabs & Filter/Group controls -->
-          <div class="card" style="padding:10px 16px;margin-bottom:14px;border-radius:14px">
-            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-              <!-- View Switcher -->
-              <div id="proj-views-bar" style="display:flex;align-items:center;gap:6px">
-                <button class="pill" style="border:none;box-shadow:none;padding:6px 12px;font-size:13px" onclick="switchProjectView('Calendar', this)">📅 Calendar</button>
-                <button class="pill on" style="border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700" onclick="switchProjectView('List', this)">☰ List</button>
-                <button class="pill" style="border:none;box-shadow:none;padding:6px 12px;font-size:13px" onclick="switchProjectView('Cards', this)">⊞ Cards</button>
-                <button class="pill" style="border:none;box-shadow:none;padding:6px 12px;font-size:13px" onclick="switchProjectView('Kanban', this)">☷ Kanban</button>
-              </div>
+            <!-- Role-aware KPI / XP Strip -->
+            <div id="proj-kpi-strip" class="grid g5" style="margin-bottom:14px"></div>
 
-              <!-- Filter / Dropdown options -->
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                <div style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:10px;padding:5px 10px;background:#ffffff;font-size:12px;font-weight:600">
-                  <span style="color:var(--mu)">Show:</span>
-                  <select id="proj-filter-status" onchange="filterProjectsTable()" style="border:none;outline:none;font-weight:700;color:var(--tx);cursor:pointer;background:transparent;padding:0">
-                    <option value="all">All Projects</option>
-                    <option value="Active">Active</option>
-                    <option value="Design">Design</option>
-                    <option value="Brief">Brief</option>
-                  </select>
+            <!-- Controls Bar: Views tabs & Filter/Group controls -->
+            <div class="card" style="padding:10px 16px;margin-bottom:14px;border-radius:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+                <!-- View Switcher -->
+                <div id="proj-views-bar" style="display:flex;align-items:center;gap:6px">
+                  <button class="pill" data-view="Calendar" style="border:none;box-shadow:none;padding:6px 12px;font-size:13px" onclick="switchProjectView('Calendar', this)">📅 Calendar</button>
+                  <button class="pill on" data-view="List" style="border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700" onclick="switchProjectView('List', this)">☰ List</button>
+                  <button class="pill" data-view="Cards" style="border:none;box-shadow:none;padding:6px 12px;font-size:13px" onclick="switchProjectView('Cards', this)">⊞ Cards</button>
+                  <button class="pill" data-view="Kanban" style="border:none;box-shadow:none;padding:6px 12px;font-size:13px" onclick="switchProjectView('Kanban', this)">☷ Kanban</button>
                 </div>
-                <div style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:10px;padding:5px 10px;background:#ffffff;font-size:12px;font-weight:600">
-                  <span style="color:var(--mu)">Sort:</span>
-                  <select id="proj-sort-select" onchange="sortProjectsTable(this.value)" style="border:none;outline:none;font-weight:700;color:var(--tx);cursor:pointer;background:transparent;padding:0">
-                    <option value="name">Name</option>
-                    <option value="deadline">Deadline</option>
-                    <option value="priority">Priority</option>
-                  </select>
+
+                <!-- Filter / Dropdown options -->
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <div style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:10px;padding:5px 10px;background:#ffffff;font-size:12px;font-weight:600">
+                    <span style="color:var(--mu)">Show:</span>
+                    <select id="proj-filter-status" onchange="filterProjectsTable()" style="border:none;outline:none;font-weight:700;color:var(--tx);cursor:pointer;background:transparent;padding:0">
+                      <option value="all">All Projects</option>
+                      <option value="Active">Active</option>
+                      <option value="Design">Design</option>
+                      <option value="Brief">Brief</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
+                  <div style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:10px;padding:5px 10px;background:#ffffff;font-size:12px;font-weight:600">
+                    <span style="color:var(--mu)">Sort:</span>
+                    <select id="proj-sort-select" onchange="sortProjectsTable(this.value)" style="border:none;outline:none;font-weight:700;color:var(--tx);cursor:pointer;background:transparent;padding:0">
+                      <option value="newest">Recent</option>
+                      <option value="name">Name</option>
+                      <option value="deadline">Deadline</option>
+                      <option value="priority">Priority</option>
+                      <option value="progress">Progress</option>
+                    </select>
+                  </div>
+                  <button class="pill" style="padding:6px 12px;font-size:12px" onclick="openFilterModal()">⚙ Add Filter</button>
+                  <button class="pill hide" id="proj-clear-keyword-btn" style="padding:6px 12px;font-size:12px" onclick="clearProjectKeywordFilter()">✕ Clear Filter</button>
                 </div>
-                <div style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:10px;padding:5px 10px;background:#ffffff;font-size:12px;font-weight:600">
-                  <span style="color:var(--mu)">Group:</span>
-                  <select onchange="toast('Grouped by ' + this.value)" style="border:none;outline:none;font-weight:700;color:var(--tx);cursor:pointer;background:transparent;padding:0">
-                    <option>Design</option>
-                    <option>Engineering</option>
-                    <option>All Divisions</option>
-                  </select>
-                </div>
-                <button class="pill" style="padding:6px 12px;font-size:12px" onclick="openFilterModal()">⚙ Add Filter</button>
               </div>
             </div>
+
+            <!-- List View Table -->
+            <div id="proj-view-list" class="card" style="padding:0;overflow:hidden;border-radius:16px">
+              <div class="scroll">
+                <table style="width:100%;border-collapse:collapse;margin:0">
+                  <thead>
+                    <tr style="background:#f9fafb;border-bottom:1px solid var(--border)">
+                      <th style="padding:14px 16px;width:36px;text-align:center"><input type="checkbox" id="proj-check-all" onclick="toggleAllProjectChecks(this.checked)"></th>
+                      <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PROJECT NAME</th>
+                      <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">DEADLINE</th>
+                      <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PROGRESS</th>
+                      <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">MODULES</th>
+                      <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">STATUS</th>
+                      <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PEOPLE</th>
+                      <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PRIORITY</th>
+                      <th id="proj-th-action" style="padding:14px 16px;text-align:right;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">ACTION</th>
+                    </tr>
+                  </thead>
+                  <tbody id="projects-table-body">
+                    <!-- Dynamically rendered via renderProjectsSection() -->
+                  </tbody>
+                </table>
+              </div>
+              <div id="proj-empty-state" class="empty hide"></div>
+            </div>
+
+            <!-- Cards / Kanban / Calendar Alternate Views -->
+            <div id="proj-view-alt" class="hide"></div>
           </div>
 
-          <!-- All Projects Interactive Data Table -->
-          <div class="card" style="padding:0;overflow:hidden;border-radius:16px">
-            <div class="scroll">
-              <table style="width:100%;border-collapse:collapse;margin:0">
-                <thead>
-                  <tr style="background:#f9fafb;border-bottom:1px solid var(--border)">
-                    <th style="padding:14px 16px;width:36px;text-align:center"><input type="checkbox" id="proj-check-all" onclick="toggleAllProjectChecks(this.checked)"></th>
-                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PROJECT NAME</th>
-                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">START DATE</th>
-                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">DEADLINE</th>
-                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PROJECT AMOUNT ✎</th>
-                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">STATUS ✎</th>
-                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PEOPLE</th>
-                    <th style="padding:14px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu)">PRIORITY ✎</th>
-                    <th style="padding:14px 16px;text-align:center;width:40px;color:var(--mu);cursor:pointer" onclick="openNewProjectModal()" title="Add Project">+</th>
-                  </tr>
-                </thead>
-                <tbody id="projects-table-body">
-                  <!-- Dynamically rendered via renderProjectsTable() -->
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <!-- Project Workspace / Detail View (CEO Monitoring + Module Management OR Employee Checklist) -->
+          <div id="proj-detail-shell" class="hide"></div>
         </section>
 
         <!-- SECTION: Employees -->
@@ -1956,6 +2097,10 @@
       const container = $(".content-area");
       if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
 
+      if (id === "projects" && typeof renderProjectsSection === "function") {
+        renderProjectsSection();
+      }
+
       // On mobile screens, automatically close the left sidebar drawer upon navigation
       if (window.innerWidth <= 900) {
         toggleMobileSidebar(false);
@@ -1981,6 +2126,8 @@
     /* Modal Helpers */
     function closeModal() {
       $("#modal-layer").classList.add("hide");
+      const box = $("#modal-box");
+      if (box) box.classList.remove("wide");
     }
 
     /* Modals */
@@ -2088,11 +2235,30 @@
       $("#modal-layer").classList.remove("hide");
     }
 
-    /* Clean State: Empty or Real Production Seed */
+    /* Clean State: Empty Production Store synced with persistent DB */
     // Format: [Initials, Full Name, Role, Department, Email, Joined, Badge, AnnualCTC, MonthlyBase, IsPaid]
-    const E = [
-      ["HS", "Plywood Collective", "Product Engineering", "Engineering", "plywood@hynastudio.com", "Nov 15, 2026", "CORE", "₹11,88,000", "₹99,000", 0]
-    ];
+    const E = [];
+
+    function syncEFromDB() {
+      if (typeof HynaDB === "undefined") return;
+      const db = HynaDB.load();
+      if (!Array.isArray(db.employees)) return;
+      E.length = 0;
+      db.employees.forEach(emp => {
+        E.push([
+          emp.initials || "HS",
+          emp.name,
+          emp.designation || "Staff",
+          emp.department || "Operations",
+          emp.email,
+          emp.joined || "Nov 15, 2026",
+          emp.badge || "CORE",
+          emp.ctc || "—",
+          emp.monthly || "—",
+          emp.isPaid || 0
+        ]);
+      });
+    }
 
     function renderEmployees() {
       const activeCount = E.length;
@@ -2159,7 +2325,11 @@
     function deleteEmp(idx) {
       if (confirm(`Remove ${E[idx][1]} from the directory?`)) {
         const name = E[idx][1];
+        const email = E[idx][4];
         E.splice(idx, 1);
+        if (typeof HynaDB !== "undefined") {
+          HynaDB.removeEmployeeByEmail(email);
+        }
         renderEmployees();
         toast(`Removed ${name}`);
       }
@@ -2196,8 +2366,23 @@
 
       const initials = name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) || "HS";
       const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      const cleanEmail = (email || `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@hynastudio.com`).toLowerCase();
 
-      E.push([initials, name, role || "Staff", dept, email || "staff@hynastudio.com", today, "NEW", ctc, mo, 0]);
+      E.push([initials, name, role || "Staff", dept, cleanEmail, today, "NEW", ctc, mo, 0]);
+      if (typeof HynaDB !== "undefined") {
+        HynaDB.upsertEmployee({
+          initials,
+          name,
+          designation: role || "Staff",
+          department: dept,
+          email: cleanEmail,
+          joined: today,
+          badge: "NEW",
+          ctc,
+          monthly: mo,
+          isPaid: 0
+        });
+      }
       renderEmployees();
       closeModal();
       toast(`Added ${name} to directory`);
@@ -2409,13 +2594,15 @@
   `
     };
 
-    $("#ptabs").innerHTML = Object.keys(T).map(k => `<button class="pill" data-t="${k}">${k}</button>`).join("");
-    function pt(k) {
-      $("#pbody").innerHTML = T[k];
-      $$("#ptabs .pill").forEach(b => b.classList.toggle("on", b.dataset.t === k));
+    if ($("#ptabs") && $("#pbody")) {
+      $("#ptabs").innerHTML = Object.keys(T).map(k => `<button class="pill" data-t="${k}">${k}</button>`).join("");
+      function pt(k) {
+        $("#pbody").innerHTML = T[k];
+        $$("#ptabs .pill").forEach(b => b.classList.toggle("on", b.dataset.t === k));
+      }
+      $$("#ptabs .pill").forEach(b => b.onclick = () => pt(b.dataset.t));
+      pt("Overview");
     }
-    $$("#ptabs .pill").forEach(b => b.onclick = () => pt(b.dataset.t));
-    pt("Overview");
 
     function addMilestone() {
       const val = $("#ms-input").value.trim();
@@ -2434,182 +2621,1763 @@
       toast("Risk logged to register");
     }
 
-    /* All Projects Interactive SaaS Table System */
-    const allProjectsData = [
-      { id: "p1", name: "Managers Meeting Q1", icon: "📊", iconBg: "#eff6ff", iconColor: "#3b82f6", start: "16/07/2024", deadline: "24/10/2024", amount: "₹4,50,000", status: "Active", people: [{ initials: "H", bg: "#fef3c7", color: "#d97706" }, { initials: "👩", bg: "#dbeafe", color: "#2563eb" }], priority: "High", priorityColor: "#ef4444" },
-      { id: "p2", name: "Managers Meeting Q1", icon: "🦁", iconBg: "#fff1f2", iconColor: "#e11d48", start: "16/07/2024", deadline: "24/10/2024", amount: "₹2,80,000", status: "Active", people: [{ initials: "H", bg: "#fef3c7", color: "#d97706" }, { initials: "👩", bg: "#dcfce7", color: "#16a34a" }], priority: "Medium", priorityColor: "#f59e0b" },
-      { id: "p3", name: "Homepage Video", icon: "🎬", iconBg: "#f0fdf4", iconColor: "#16a34a", start: "16/07/2024", deadline: "24/10/2024", amount: "₹1,20,000", status: "Design", people: [{ initials: "👨", bg: "#e0e7ff", color: "#4f46e5" }, { initials: "🧔", bg: "#dbeafe", color: "#2563eb" }], priority: "Low", priorityColor: "#3b82f6" },
-      { id: "p4", name: "Website Update", icon: "🌐", iconBg: "#f5f3ff", iconColor: "#7c3aed", start: "16/07/2024", deadline: "24/10/2024", amount: "₹3,10,000", status: "Active", people: [{ initials: "HM", bg: "#fee2e2", color: "#b91c1c" }], priority: "Medium", priorityColor: "#f59e0b" },
-      { id: "p5", name: "Video Feature", icon: "🍔", iconBg: "#fefce8", iconColor: "#ca8a04", start: "16/07/2024", deadline: "24/10/2024", amount: "₹6,40,000", status: "Brief", people: [{ initials: "👨", bg: "#fef3c7", color: "#d97706" }, { initials: "M", bg: "#fce7f3", color: "#db2777" }, { initials: "🧔", bg: "#e0e7ff", color: "#4f46e5" }], priority: "Medium", priorityColor: "#f59e0b" },
-      { id: "p6", name: "Homepage Video", icon: "📑", iconBg: "#eff6ff", iconColor: "#2563eb", start: "16/07/2024", deadline: "24/10/2024", amount: "₹1,75,000", status: "Design", people: [{ initials: "👨", bg: "#fef3c7", color: "#d97706" }, { initials: "T", bg: "#ccfbf1", color: "#0d9488" }, { initials: "👩", bg: "#dbeafe", color: "#2563eb" }], priority: "Medium", priorityColor: "#f59e0b" },
-      { id: "p7", name: "Website Update", icon: "☕", iconBg: "#f0fdf4", iconColor: "#15803d", start: "16/07/2024", deadline: "24/10/2024", amount: "₹2,50,000", status: "Active", people: [{ initials: "HM", bg: "#fee2e2", color: "#b91c1c" }], priority: "Medium", priorityColor: "#f59e0b" },
-      { id: "p8", name: "Video Feature", icon: "📊", iconBg: "#eff6ff", iconColor: "#3b82f6", start: "16/07/2024", deadline: "24/10/2024", amount: "₹5,20,000", status: "Active", people: [{ initials: "👨", bg: "#e0e7ff", color: "#4f46e5" }, { initials: "👩", bg: "#fce7f3", color: "#db2777" }], priority: "High", priorityColor: "#ef4444" },
-      { id: "p9", name: "Homepage Video", icon: "🎬", iconBg: "#f0fdf4", iconColor: "#16a34a", start: "16/07/2024", deadline: "24/10/2024", amount: "₹95,000", status: "Design", people: [{ initials: "TA", bg: "#d1fae5", color: "#059669" }], priority: "Medium", priorityColor: "#f59e0b" },
-      { id: "p10", name: "Website Update", icon: "🏆", iconBg: "#fefce8", iconColor: "#b45309", start: "16/07/2024", deadline: "24/10/2024", amount: "₹4,10,000", status: "Active", people: [{ initials: "H", bg: "#fef3c7", color: "#d97706" }, { initials: "👨", bg: "#dbeafe", color: "#2563eb" }, { initials: "🧔", bg: "#e0e7ff", color: "#4f46e5" }], priority: "High", priorityColor: "#ef4444" }
+    /* ============================================================
+       Hyna Management – Persistent DB, Project Assignment,
+       Module Tracking, XP & Automatic Progress System
+       ============================================================ */
+    const DB_KEY = "hyna_office_db_v1";
+
+    const AVATAR_THEMES = [
+      { bg: "#e0e7ff", color: "#4f46e5" },
+      { bg: "#dbeafe", color: "#2563eb" },
+      { bg: "#dcfce7", color: "#16a34a" },
+      { bg: "#fef3c7", color: "#d97706" },
+      { bg: "#fce7f3", color: "#db2777" },
+      { bg: "#ccfbf1", color: "#0d9488" }
     ];
 
+    function esc(str) {
+      return String(str == null ? "" : str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function uid(prefix) {
+      return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+    }
+
+    function toDisplayDate(iso) {
+      if (!iso) return "";
+      if (iso.includes("/")) return iso;
+      const parts = iso.split("-");
+      return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : iso;
+    }
+
+    function toISODate(disp) {
+      if (!disp) return "";
+      if (/^\d{4}-\d{2}-\d{2}$/.test(disp)) return disp;
+      const parts = disp.split("/");
+      return parts.length === 3 ? `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}` : "";
+    }
+
+    function formatTimestamp(iso) {
+      if (!iso) return "";
+      try {
+        return new Date(iso).toLocaleString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+      } catch {
+        return iso;
+      }
+    }
+
+    function getRankForXP(xp) {
+      if (xp >= 2000) return { title: "Master Lead", icon: "👑", next: null, floor: 2000 };
+      if (xp >= 1000) return { title: "Architect", icon: "🏛", next: 2000, floor: 1000 };
+      if (xp >= 500) return { title: "Specialist", icon: "⚡", next: 1000, floor: 500 };
+      if (xp >= 200) return { title: "Builder", icon: "🛠", next: 500, floor: 200 };
+      return { title: "Rookie", icon: "🌱", next: 200, floor: 0 };
+    }
+
+    const HynaDB = {
+      load() {
+        try {
+          const raw = localStorage.getItem(DB_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.projects) && Array.isArray(parsed.employees)) {
+              parsed.project_members = parsed.project_members || [];
+              parsed.project_modules = parsed.project_modules || [];
+              parsed.module_assignments = parsed.module_assignments || [];
+              parsed.xp_transactions = parsed.xp_transactions || [];
+              if (!parsed.seed_purged_v2) {
+                parsed.projects = parsed.projects.filter(p => {
+                  const isOldSeed = /^p([1-9]|10)$/.test(p.id);
+                  if (!isOldSeed) return true;
+                  const hasData = parsed.project_modules.some(m => m.project_id === p.id) ||
+                    parsed.project_members.some(pm => pm.project_id === p.id);
+                  return hasData;
+                });
+                parsed.employees = parsed.employees.filter(e => {
+                  if (e.id !== "emp_plywood") return true;
+                  const hasData = parsed.project_members.some(pm => pm.employee_id === e.id) ||
+                    parsed.module_assignments.some(ma => ma.employee_id === e.id);
+                  return hasData;
+                });
+                parsed.seed_purged_v2 = true;
+                this.save(parsed);
+              }
+              return parsed;
+            }
+          }
+        } catch (err) {
+          console.error("Failed loading HynaDB:", err);
+        }
+
+        const emptyDb = {
+          employees: [],
+          projects: [],
+          project_members: [],
+          project_modules: [],
+          module_assignments: [],
+          xp_transactions: [],
+          seed_purged_v2: true
+        };
+        this.save(emptyDb);
+        return emptyDb;
+      },
+
+      save(db) {
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+      },
+
+      resolveCurrentUser() {
+        const role = sessionStorage.getItem("hyna_role") || "employee";
+        const email = (sessionStorage.getItem("hyna_user_email") || "").trim().toLowerCase();
+        const storedId = sessionStorage.getItem("hyna_user_id") || "";
+        const storedName = sessionStorage.getItem("hyna_user_name") || "";
+
+        if (role === "ceo") {
+          return {
+            id: "ceo",
+            role: "ceo",
+            email: email || "ceo@hynastudio.com",
+            name: storedName || "CEO / Admin"
+          };
+        }
+
+        const db = this.load();
+        const match = db.employees.find(e =>
+          (storedId && e.id === storedId) ||
+          (email && (e.email || "").toLowerCase() === email)
+        );
+
+        if (match) {
+          return {
+            id: match.id,
+            role,
+            email: match.email,
+            name: match.name,
+            initials: match.initials
+          };
+        }
+
+        return {
+          id: storedId || ("guest_" + (email || role)),
+          role,
+          email: email || `${role}@hynastudio.com`,
+          name: storedName || (roleBadgeMap[role] || "Employee")
+        };
+      },
+
+      isAdmin(actor) {
+        return actor && actor.role === "ceo";
+      },
+
+      assertAdmin(actor) {
+        if (!this.isAdmin(actor)) {
+          throw new Error("Permission denied: CEO/Admin authorization required.");
+        }
+      },
+
+      upsertEmployee(empInput) {
+        const db = this.load();
+        const email = (empInput.email || "").trim().toLowerCase();
+        const existing = db.employees.find(e => e.email.toLowerCase() === email);
+        if (existing) {
+          Object.assign(existing, empInput, { email });
+          this.save(db);
+          return existing;
+        }
+        const theme = AVATAR_THEMES[db.employees.length % AVATAR_THEMES.length];
+        const created = {
+          id: uid("emp"),
+          initials: empInput.initials || "HS",
+          name: empInput.name,
+          designation: empInput.designation || "Staff",
+          department: empInput.department || "Engineering",
+          email,
+          joined: empInput.joined || new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+          badge: empInput.badge || "NEW",
+          ctc: empInput.ctc || "—",
+          monthly: empInput.monthly || "—",
+          isPaid: empInput.isPaid || 0,
+          avatarBg: theme.bg,
+          avatarColor: theme.color,
+          created_at: new Date().toISOString()
+        };
+        db.employees.push(created);
+        this.save(db);
+        return created;
+      },
+
+      removeEmployeeByEmail(email) {
+        const db = this.load();
+        const norm = (email || "").trim().toLowerCase();
+        const target = db.employees.find(e => (e.email || "").toLowerCase() === norm);
+        if (!target) return;
+        const empId = target.id;
+        db.employees = db.employees.filter(e => e.id !== empId);
+        const affectedProjects = new Set(db.project_members.filter(pm => pm.employee_id === empId).map(pm => pm.project_id));
+        db.project_members = db.project_members.filter(pm => pm.employee_id !== empId);
+        db.module_assignments = db.module_assignments.filter(ma => ma.employee_id !== empId);
+        affectedProjects.forEach(pid => this.recalculateProjectProgressInDB(db, pid));
+        this.save(db);
+      },
+
+      isProjectMember(db, projectId, employeeId) {
+        return db.project_members.some(pm => pm.project_id === projectId && pm.employee_id === employeeId);
+      },
+
+      isModuleCompleted(db, moduleId) {
+        const assigns = db.module_assignments.filter(a => a.module_id === moduleId);
+        return assigns.length > 0 && assigns.every(a => a.is_completed);
+      },
+
+      recalculateProjectProgressInDB(db, projectId) {
+        const project = db.projects.find(p => p.id === projectId);
+        if (!project) return null;
+        const modules = db.project_modules.filter(m => m.project_id === projectId);
+        const total = modules.length;
+        const completed = modules.filter(m => this.isModuleCompleted(db, m.id)).length;
+        const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+        project.total_modules = total;
+        project.completed_modules = completed;
+        project.progress = progress;
+        project.updated_at = new Date().toISOString();
+
+        if (total > 0 && completed === total) {
+          project.status = "Completed";
+          if (!project.completed_at) project.completed_at = new Date().toISOString();
+        } else if (project.status === "Completed") {
+          project.status = "Active";
+          project.completed_at = null;
+        }
+        return project;
+      },
+
+      getProjectMembersList(db, projectId) {
+        const memberIds = new Set(db.project_members.filter(pm => pm.project_id === projectId).map(pm => pm.employee_id));
+        return db.employees.filter(e => memberIds.has(e.id));
+      },
+
+      getVisibleProjects(actor) {
+        const db = this.load();
+        const isCeo = this.isAdmin(actor);
+        const projects = isCeo
+          ? db.projects
+          : db.projects.filter(p => this.isProjectMember(db, p.id, actor.id));
+
+        return projects.map(p => {
+          this.recalculateProjectProgressInDB(db, p.id);
+          const members = this.getProjectMembersList(db, p.id);
+          const allModules = db.project_modules.filter(m => m.project_id === p.id);
+          const actorModules = isCeo
+            ? allModules
+            : allModules.filter(m => db.module_assignments.some(a => a.module_id === m.id && a.employee_id === actor.id));
+          const actorCompleted = isCeo
+            ? p.completed_modules
+            : actorModules.filter(m => db.module_assignments.some(a => a.module_id === m.id && a.employee_id === actor.id && a.is_completed)).length;
+
+          return {
+            ...p,
+            members,
+            total_modules: allModules.length,
+            completed_modules: p.completed_modules || 0,
+            actor_total_modules: actorModules.length,
+            actor_completed_modules: actorCompleted
+          };
+        });
+      },
+
+      getProjectDetail(projectId, actor) {
+        const db = this.load();
+        const project = db.projects.find(p => p.id === projectId);
+        if (!project) throw new Error("Project not found.");
+        const isCeo = this.isAdmin(actor);
+        if (!isCeo && !this.isProjectMember(db, projectId, actor.id)) {
+          throw new Error("Access denied: You are not assigned to this project.");
+        }
+
+        this.recalculateProjectProgressInDB(db, projectId);
+        const members = this.getProjectMembersList(db, projectId);
+        const allModules = db.project_modules
+          .filter(m => m.project_id === projectId)
+          .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+        const modules = allModules
+          .filter(m => isCeo || db.module_assignments.some(a => a.module_id === m.id && a.employee_id === actor.id))
+          .map(m => {
+            const assigns = db.module_assignments
+              .filter(a => a.module_id === m.id && (isCeo || a.employee_id === actor.id))
+              .map(a => {
+                const emp = db.employees.find(e => e.id === a.employee_id);
+                return { ...a, employee: emp || { id: a.employee_id, name: "Member", initials: "?", email: "" } };
+              });
+            return {
+              ...m,
+              assignments: assigns,
+              is_completed: this.isModuleCompleted(db, m.id)
+            };
+          });
+
+        const memberStats = isCeo
+          ? members.map(emp => {
+              const empAssigns = db.module_assignments.filter(a => a.project_id === projectId && a.employee_id === emp.id);
+              const done = empAssigns.filter(a => a.is_completed).length;
+              const pending = empAssigns.length - done;
+              const pct = empAssigns.length === 0 ? 0 : Math.round((done / empAssigns.length) * 100);
+              const projectXp = this.computeXP(db, emp.id, projectId);
+              const totalXp = this.computeXP(db, emp.id);
+              return {
+                employee: emp,
+                assigned: empAssigns.length,
+                completed: done,
+                pending,
+                progress: pct,
+                projectXp,
+                totalXp,
+                rank: getRankForXP(totalXp)
+              };
+            })
+          : [];
+
+        const totalXpPool = allModules.reduce((acc, m) => acc + (Number(m.xp_reward) || 0), 0);
+        const actorProjectXp = isCeo
+          ? db.xp_transactions.filter(t => t.project_id === projectId).reduce((s, t) => s + t.amount, 0)
+          : this.computeXP(db, actor.id, projectId);
+
+        return {
+          project: { ...project },
+          members,
+          modules,
+          memberStats,
+          totalXpPool,
+          actorProjectXp
+        };
+      },
+
+      computeXP(db, employeeId, projectId = null) {
+        return db.xp_transactions
+          .filter(t => t.employee_id === employeeId && (!projectId || t.project_id === projectId))
+          .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+      },
+
+      getNetModuleXP(db, moduleId, employeeId) {
+        return db.xp_transactions
+          .filter(t => t.module_id === moduleId && t.employee_id === employeeId)
+          .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+      },
+
+      getEmployeeXPStats(employeeId) {
+        const db = this.load();
+        const totalXp = this.computeXP(db, employeeId);
+        const completedCount = db.module_assignments.filter(a => a.employee_id === employeeId && a.is_completed).length;
+        const assignedCount = db.module_assignments.filter(a => a.employee_id === employeeId).length;
+        const projectCount = db.project_members.filter(pm => pm.employee_id === employeeId).length;
+        return {
+          totalXp,
+          rank: getRankForXP(totalXp),
+          completedCount,
+          assignedCount,
+          projectCount
+        };
+      },
+
+      getLeaderboard() {
+        const db = this.load();
+        return db.employees
+          .map(emp => {
+            const xp = this.computeXP(db, emp.id);
+            const completedModules = db.module_assignments.filter(a => a.employee_id === emp.id && a.is_completed).length;
+            return {
+              employee: emp,
+              xp,
+              rank: getRankForXP(xp),
+              completedModules
+            };
+          })
+          .sort((a, b) => b.xp - a.xp || b.completedModules - a.completedModules);
+      },
+
+      createProject(payload, actor) {
+        this.assertAdmin(actor);
+        const db = this.load();
+        const now = new Date().toISOString();
+        const projectId = uid("p");
+        const priorityColor = payload.priority === "High" ? "#ef4444" : payload.priority === "Medium" ? "#f59e0b" : "#3b82f6";
+
+        const project = {
+          id: projectId,
+          name: payload.name,
+          description: payload.description || "",
+          icon: payload.icon || "🚀",
+          iconBg: "#eff6ff",
+          iconColor: "#2563eb",
+          start: payload.start || toDisplayDate(new Date().toISOString().slice(0, 10)),
+          deadline: payload.deadline || "",
+          amount: payload.amount || "₹0",
+          status: payload.status || "Active",
+          priority: payload.priority || "Medium",
+          priorityColor,
+          progress: 0,
+          total_modules: 0,
+          completed_modules: 0,
+          completed_at: null,
+          created_by: actor.email,
+          created_at: now,
+          updated_at: now
+        };
+        db.projects.unshift(project);
+
+        const uniqueMembers = Array.from(new Set(payload.memberIds || []));
+        uniqueMembers.forEach(empId => {
+          if (db.employees.some(e => e.id === empId)) {
+            db.project_members.push({
+              id: uid("pm"),
+              project_id: projectId,
+              employee_id: empId,
+              assigned_by: actor.email,
+              assigned_at: now
+            });
+          }
+        });
+
+        const modulesInput = Array.isArray(payload.modules) ? payload.modules : [];
+        modulesInput.forEach((m, idx) => {
+          if (!m.title || !m.title.trim()) return;
+          const modId = uid("mod");
+          db.project_modules.push({
+            id: modId,
+            project_id: projectId,
+            title: m.title.trim(),
+            description: (m.description || "").trim(),
+            xp_reward: Math.max(0, Number(m.xp_reward) || 0),
+            deadline: m.deadline || "",
+            sort_order: idx + 1,
+            created_at: now
+          });
+          const assignIds = Array.from(new Set(m.assigneeIds || [])).filter(id => uniqueMembers.includes(id));
+          assignIds.forEach(empId => {
+            db.module_assignments.push({
+              id: uid("ma"),
+              project_id: projectId,
+              module_id: modId,
+              employee_id: empId,
+              is_completed: false,
+              completed_at: null,
+              completed_by: null,
+              assigned_at: now
+            });
+          });
+        });
+
+        this.recalculateProjectProgressInDB(db, projectId);
+        this.save(db);
+        return project;
+      },
+
+      updateProject(projectId, payload, actor) {
+        this.assertAdmin(actor);
+        const db = this.load();
+        const project = db.projects.find(p => p.id === projectId);
+        if (!project) throw new Error("Project not found.");
+        const now = new Date().toISOString();
+
+        project.name = payload.name;
+        project.description = payload.description || "";
+        project.start = payload.start || project.start;
+        project.deadline = payload.deadline || project.deadline;
+        project.amount = payload.amount || project.amount;
+        project.status = payload.status || project.status;
+        project.priority = payload.priority || project.priority;
+        project.priorityColor = project.priority === "High" ? "#ef4444" : project.priority === "Medium" ? "#f59e0b" : "#3b82f6";
+        project.updated_at = now;
+
+        const nextMemberIds = new Set((payload.memberIds || []).filter(id => db.employees.some(e => e.id === id)));
+        const existingMemberIds = new Set(db.project_members.filter(pm => pm.project_id === projectId).map(pm => pm.employee_id));
+
+        // Remove unselected members and their module assignments in this project
+        db.project_members = db.project_members.filter(pm => !(pm.project_id === projectId && !nextMemberIds.has(pm.employee_id)));
+        db.module_assignments = db.module_assignments.filter(ma => !(ma.project_id === projectId && !nextMemberIds.has(ma.employee_id)));
+
+        // Add newly selected members
+        nextMemberIds.forEach(empId => {
+          if (!existingMemberIds.has(empId)) {
+            db.project_members.push({
+              id: uid("pm"),
+              project_id: projectId,
+              employee_id: empId,
+              assigned_by: actor.email,
+              assigned_at: now
+            });
+          }
+        });
+
+        this.recalculateProjectProgressInDB(db, projectId);
+        this.save(db);
+        return project;
+      },
+
+      deleteProject(projectId, actor) {
+        this.assertAdmin(actor);
+        const db = this.load();
+        db.projects = db.projects.filter(p => p.id !== projectId);
+        db.project_members = db.project_members.filter(pm => pm.project_id !== projectId);
+        db.project_modules = db.project_modules.filter(m => m.project_id !== projectId);
+        db.module_assignments = db.module_assignments.filter(ma => ma.project_id !== projectId);
+        db.xp_transactions = db.xp_transactions.filter(t => t.project_id !== projectId);
+        this.save(db);
+      },
+
+      addModule(projectId, modInput, actor) {
+        this.assertAdmin(actor);
+        const db = this.load();
+        const project = db.projects.find(p => p.id === projectId);
+        if (!project) throw new Error("Project not found.");
+        const now = new Date().toISOString();
+
+        const existingMods = db.project_modules.filter(m => m.project_id === projectId);
+        const maxOrder = existingMods.reduce((max, m) => Math.max(max, m.sort_order || 0), 0);
+        const modId = uid("mod");
+
+        const mod = {
+          id: modId,
+          project_id: projectId,
+          title: modInput.title.trim(),
+          description: (modInput.description || "").trim(),
+          xp_reward: Math.max(0, Number(modInput.xp_reward) || 0),
+          deadline: modInput.deadline || "",
+          sort_order: maxOrder + 1,
+          created_at: now
+        };
+        db.project_modules.push(mod);
+
+        const validMembers = new Set(db.project_members.filter(pm => pm.project_id === projectId).map(pm => pm.employee_id));
+        const assignees = Array.from(new Set(modInput.assigneeIds || [])).filter(id => validMembers.has(id));
+        assignees.forEach(empId => {
+          db.module_assignments.push({
+            id: uid("ma"),
+            project_id: projectId,
+            module_id: modId,
+            employee_id: empId,
+            is_completed: false,
+            completed_at: null,
+            completed_by: null,
+            assigned_at: now
+          });
+        });
+
+        this.recalculateProjectProgressInDB(db, projectId);
+        this.save(db);
+        return mod;
+      },
+
+      updateModule(moduleId, modInput, actor) {
+        this.assertAdmin(actor);
+        const db = this.load();
+        const mod = db.project_modules.find(m => m.id === moduleId);
+        if (!mod) throw new Error("Module not found.");
+        const now = new Date().toISOString();
+
+        mod.title = modInput.title.trim();
+        mod.description = (modInput.description || "").trim();
+        mod.xp_reward = Math.max(0, Number(modInput.xp_reward) || 0);
+        mod.deadline = modInput.deadline || "";
+
+        const validMembers = new Set(db.project_members.filter(pm => pm.project_id === mod.project_id).map(pm => pm.employee_id));
+        const nextAssignees = new Set((modInput.assigneeIds || []).filter(id => validMembers.has(id)));
+        const existingAssignees = new Set(db.module_assignments.filter(a => a.module_id === moduleId).map(a => a.employee_id));
+
+        // Remove unassigned members from module (reverse any active XP if removed)
+        db.module_assignments = db.module_assignments.filter(a => {
+          if (a.module_id === moduleId && !nextAssignees.has(a.employee_id)) {
+            const netXp = this.getNetModuleXP(db, moduleId, a.employee_id);
+            if (netXp > 0) {
+              db.xp_transactions.push({
+                id: uid("xp"),
+                employee_id: a.employee_id,
+                project_id: mod.project_id,
+                module_id: moduleId,
+                assignment_id: a.id,
+                amount: -netXp,
+                type: "ADMIN_RESET_REVERSAL",
+                reason: `Unassigned from module: ${mod.title}`,
+                created_at: now
+              });
+            }
+            return false;
+          }
+          return true;
+        });
+
+        nextAssignees.forEach(empId => {
+          if (!existingAssignees.has(empId)) {
+            db.module_assignments.push({
+              id: uid("ma"),
+              project_id: mod.project_id,
+              module_id: moduleId,
+              employee_id: empId,
+              is_completed: false,
+              completed_at: null,
+              completed_by: null,
+              assigned_at: now
+            });
+          }
+        });
+
+        this.recalculateProjectProgressInDB(db, mod.project_id);
+        this.save(db);
+        return mod;
+      },
+
+      deleteModule(moduleId, actor) {
+        this.assertAdmin(actor);
+        const db = this.load();
+        const mod = db.project_modules.find(m => m.id === moduleId);
+        if (!mod) return;
+        const projectId = mod.project_id;
+        db.project_modules = db.project_modules.filter(m => m.id !== moduleId);
+        db.module_assignments = db.module_assignments.filter(a => a.module_id !== moduleId);
+        this.recalculateProjectProgressInDB(db, projectId);
+        this.save(db);
+      },
+
+      reorderModule(moduleId, direction, actor) {
+        this.assertAdmin(actor);
+        const db = this.load();
+        const mod = db.project_modules.find(m => m.id === moduleId);
+        if (!mod) return;
+        const list = db.project_modules
+          .filter(m => m.project_id === mod.project_id)
+          .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+        const idx = list.findIndex(m => m.id === moduleId);
+        const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+        if (idx < 0 || swapIdx < 0 || swapIdx >= list.length) return;
+        const temp = list[idx];
+        list[idx] = list[swapIdx];
+        list[swapIdx] = temp;
+        list.forEach((item, i) => {
+          item.sort_order = i + 1;
+        });
+        this.save(db);
+      },
+
+      completeModuleAssignment(moduleId, employeeId, actor) {
+        const db = this.load();
+        const mod = db.project_modules.find(m => m.id === moduleId);
+        if (!mod) throw new Error("Module not found.");
+        if (!this.isAdmin(actor) && actor.id !== employeeId) {
+          throw new Error("Permission denied: You cannot modify another employee's module.");
+        }
+        if (!this.isProjectMember(db, mod.project_id, employeeId)) {
+          throw new Error("Permission denied: Employee is not a member of this project.");
+        }
+
+        const assignment = db.module_assignments.find(a => a.module_id === moduleId && a.employee_id === employeeId);
+        if (!assignment) throw new Error("Module assignment not found for this employee.");
+
+        if (assignment.is_completed) {
+          return { alreadyCompleted: true, awardedXp: 0, project: this.recalculateProjectProgressInDB(db, mod.project_id) };
+        }
+
+        const now = new Date().toISOString();
+        assignment.is_completed = true;
+        assignment.completed_at = now;
+        assignment.completed_by = actor.id;
+
+        // Prevent duplicate XP transactions: only award up to module.xp_reward net XP
+        const xpTarget = Math.max(0, Number(mod.xp_reward) || 0);
+        const netAwarded = this.getNetModuleXP(db, moduleId, employeeId);
+        const deltaXp = Math.max(0, xpTarget - netAwarded);
+
+        if (deltaXp > 0) {
+          db.xp_transactions.push({
+            id: uid("xp"),
+            employee_id: employeeId,
+            project_id: mod.project_id,
+            module_id: moduleId,
+            assignment_id: assignment.id,
+            amount: deltaXp,
+            type: "MODULE_COMPLETION",
+            reason: `Completed module: ${mod.title}`,
+            created_at: now
+          });
+        }
+
+        const prevStatus = (db.projects.find(p => p.id === mod.project_id) || {}).status;
+        const updatedProject = this.recalculateProjectProgressInDB(db, mod.project_id);
+        this.save(db);
+
+        return {
+          alreadyCompleted: false,
+          awardedXp: deltaXp,
+          project: updatedProject,
+          projectCompletedNow: prevStatus !== "Completed" && updatedProject.status === "Completed"
+        };
+      },
+
+      resetModuleAssignment(moduleId, employeeId, actor) {
+        this.assertAdmin(actor);
+        const db = this.load();
+        const mod = db.project_modules.find(m => m.id === moduleId);
+        if (!mod) throw new Error("Module not found.");
+        const assignment = db.module_assignments.find(a => a.module_id === moduleId && a.employee_id === employeeId);
+        if (!assignment) throw new Error("Module assignment not found.");
+
+        const now = new Date().toISOString();
+        assignment.is_completed = false;
+        assignment.completed_at = null;
+        assignment.completed_by = null;
+
+        const netAwarded = this.getNetModuleXP(db, moduleId, employeeId);
+        let reversedXp = 0;
+        if (netAwarded > 0) {
+          reversedXp = netAwarded;
+          db.xp_transactions.push({
+            id: uid("xp"),
+            employee_id: employeeId,
+            project_id: mod.project_id,
+            module_id: moduleId,
+            assignment_id: assignment.id,
+            amount: -netAwarded,
+            type: "ADMIN_RESET_REVERSAL",
+            reason: `Admin reset module: ${mod.title}`,
+            created_at: now
+          });
+        }
+
+        const updatedProject = this.recalculateProjectProgressInDB(db, mod.project_id);
+        this.save(db);
+        return { reversedXp, project: updatedProject };
+      }
+    };
+
+    // Sync E array with persisted DB on startup
+    syncEFromDB();
+
+    /* Projects UI State */
+    let currentProjectView = "List";
+    let activeProjectId = null;
+    let projectKeywordFilter = "";
+    let modalModuleDrafts = [];
+
     function getStatusBadgeStyle(st) {
+      if (st === "Completed") return "background:#d1fae5;color:#047857;border:1px solid #a7f3d0";
       if (st === "Active") return "background:#dcfce7;color:#15803d";
       if (st === "Design") return "background:#f3e8ff;color:#7e22ce";
       if (st === "Brief") return "background:#ffedd5;color:#c2410c";
       return "background:#f3f4f6;color:#374151";
     }
 
-    function renderProjectsTable(data = allProjectsData) {
-      const tbody = $("#projects-table-body");
-      if (!tbody) return;
-      tbody.innerHTML = data.map(p => `
-        <tr style="border-bottom:1px solid var(--border);transition:background .12s ease" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#ffffff'">
-          <td style="padding:12px 16px;text-align:center"><input type="checkbox" class="proj-row-check"></td>
-          <td style="padding:12px 16px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="width:32px;height:32px;border-radius:8px;background:${p.iconBg};color:${p.iconColor};display:grid;place-items:center;font-size:16px;flex-shrink:0">${p.icon}</div>
-              <span style="font-weight:700;color:var(--tx);font-size:13px">${p.name}</span>
-            </div>
-          </td>
-          <td style="padding:12px 16px;color:var(--mu);font-size:12px;font-weight:600">${p.start}</td>
-          <td style="padding:12px 16px;color:var(--mu);font-size:12px;font-weight:600">${p.deadline}</td>
-          <td style="padding:12px 16px;font-weight:700;font-size:13px;color:var(--tx)">${p.amount}</td>
-          <td style="padding:12px 16px">
-            <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block;${getStatusBadgeStyle(p.status)}">${p.status}</span>
-          </td>
-          <td style="padding:12px 16px">
-            <div style="display:flex;align-items:center">
-              ${p.people.map((m, idx) => `
-                <div style="width:24px;height:24px;border-radius:50%;background:${m.bg};color:${m.color};font-size:10px;font-weight:700;display:grid;place-items:center;border:1.5px solid #fff;${idx > 0 ? 'margin-left:-6px;' : ''}">${m.initials}</div>
-              `).join('')}
-            </div>
-          </td>
-          <td style="padding:12px 16px">
-            <div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--tx)">
-              <span style="width:7px;height:7px;border-radius:50%;background:${p.priorityColor}"></span>
-              ${p.priority}
-            </div>
-          </td>
-          <td style="padding:12px 16px;text-align:center">
-            <button style="border:none;background:transparent;color:var(--mu);cursor:pointer;font-size:16px;padding:4px" onclick="editProjectMenu('${p.id}')">⋮</button>
-          </td>
-        </tr>
-      `).join('');
-    }
+    function getFilteredAndSortedProjects() {
+      const actor = HynaDB.resolveCurrentUser();
+      let list = HynaDB.getVisibleProjects(actor);
 
-    function sortProjectsTable(sortBy) {
+      const statusVal = ($("#proj-filter-status") && $("#proj-filter-status").value) || "all";
+      if (statusVal !== "all") {
+        list = list.filter(p => (p.status || "").toLowerCase() === statusVal.toLowerCase());
+      }
+
+      if (projectKeywordFilter.trim()) {
+        const q = projectKeywordFilter.trim().toLowerCase();
+        list = list.filter(p =>
+          (p.name || "").toLowerCase().includes(q) ||
+          (p.description || "").toLowerCase().includes(q) ||
+          (p.status || "").toLowerCase().includes(q)
+        );
+      }
+
+      const sortBy = ($("#proj-sort-select") && $("#proj-sort-select").value) || "newest";
       if (sortBy === "name") {
-        allProjectsData.sort((a, b) => a.name.localeCompare(b.name));
+        list.sort((a, b) => a.name.localeCompare(b.name));
       } else if (sortBy === "deadline") {
-        allProjectsData.sort((a, b) => a.deadline.localeCompare(b.deadline));
+        list.sort((a, b) => (toISODate(a.deadline) || "9999").localeCompare(toISODate(b.deadline) || "9999"));
       } else if (sortBy === "priority") {
         const order = { High: 1, Medium: 2, Low: 3 };
-        allProjectsData.sort((a, b) => (order[a.priority] || 9) - (order[b.priority] || 9));
+        list.sort((a, b) => (order[a.priority] || 9) - (order[b.priority] || 9));
+      } else if (sortBy === "progress") {
+        list.sort((a, b) => (b.progress || 0) - (a.progress || 0));
       }
-      renderProjectsTable();
-      toast(`Sorted by ${sortBy}`);
+
+      return list;
     }
 
-    function openFilterModal() {
-      const q = prompt("Filter projects by keyword (name or tag):", "");
-      if (q !== null) {
-        if (!q.trim()) {
-          renderProjectsTable(allProjectsData);
-        } else {
-          const res = allProjectsData.filter(p => p.name.toLowerCase().includes(q.toLowerCase()));
-          renderProjectsTable(res);
-          toast(`Found ${res.length} matching project(s)`);
+    function renderProjectsSection() {
+      const actor = HynaDB.resolveCurrentUser();
+      const isCeo = HynaDB.isAdmin(actor);
+      const listShell = $("#proj-list-shell");
+      const detailShell = $("#proj-detail-shell");
+      if (!listShell || !detailShell) return;
+
+      if (activeProjectId) {
+        try {
+          renderProjectDetail(activeProjectId);
+          listShell.classList.add("hide");
+          detailShell.classList.remove("hide");
+          return;
+        } catch (err) {
+          activeProjectId = null;
+          toast(err.message);
         }
       }
-    }
 
-    function filterProjectsTable() {
-      const val = $("#proj-filter-status").value;
-      if (val === "all") {
-        renderProjectsTable(allProjectsData);
+      detailShell.classList.add("hide");
+      listShell.classList.remove("hide");
+
+      // Header role adaptation
+      const titleEl = $("#proj-page-title");
+      const inviteBtn = $("#proj-invite-btn");
+      const newBtn = $("#proj-new-btn");
+      const avatarsEl = $("#proj-header-avatars");
+      const xpBadgeEl = $("#proj-header-xp-badge");
+      const db = HynaDB.load();
+
+      if (titleEl) titleEl.textContent = isCeo ? "All Projects" : "My Assigned Projects";
+      if (inviteBtn) inviteBtn.classList.toggle("hide", !isCeo);
+      if (newBtn) newBtn.classList.toggle("hide", !isCeo);
+
+      if (avatarsEl) {
+        if (isCeo) {
+          avatarsEl.innerHTML = db.employees.slice(0, 5).map((emp, idx) => `
+            <div title="${esc(emp.name)}" style="width:28px;height:28px;border-radius:50%;background:${emp.avatarBg};color:${emp.avatarColor};font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;${idx > 0 ? 'margin-left:-8px;' : ''}">${esc(emp.initials)}</div>
+          `).join("");
+        } else {
+          avatarsEl.innerHTML = `<span class="sub" style="font-weight:600">Signed in as <b>${esc(actor.name)}</b> (${esc(actor.email)})</span>`;
+        }
+      }
+
+      if (xpBadgeEl) {
+        if (!isCeo) {
+          const stats = HynaDB.getEmployeeXPStats(actor.id);
+          xpBadgeEl.classList.remove("hide");
+          xpBadgeEl.textContent = `${stats.rank.icon} ${stats.rank.title} · ${stats.totalXp} XP`;
+        } else {
+          xpBadgeEl.classList.add("hide");
+        }
+      }
+
+      // KPI Strip
+      const visibleProjects = HynaDB.getVisibleProjects(actor);
+      const kpiEl = $("#proj-kpi-strip");
+      if (kpiEl) {
+        if (isCeo) {
+          const totalProj = visibleProjects.length;
+          const completedProj = visibleProjects.filter(p => p.status === "Completed").length;
+          const totalMods = visibleProjects.reduce((s, p) => s + (p.total_modules || 0), 0);
+          const doneMods = visibleProjects.reduce((s, p) => s + (p.completed_modules || 0), 0);
+          const teamXp = db.xp_transactions.reduce((s, t) => s + (Number(t.amount) || 0), 0);
+          kpiEl.innerHTML = `
+            <div class="card stat"><span class="ic">▣</span><small>TOTAL PROJECTS</small><b>${totalProj}</b><span class="sub">${totalProj - completedProj} in progress</span></div>
+            <div class="card stat"><span class="ic ok">✓</span><small>COMPLETED PROJECTS</small><b class="ok">${completedProj}</b><span class="sub">100% modules done</span></div>
+            <div class="card stat"><span class="ic">🧩</span><small>PROJECT MODULES</small><b>${doneMods} / ${totalMods}</b><span class="sub">modules completed</span></div>
+            <div class="card stat"><span class="ic">👥</span><small>ACTIVE DIRECTORY</small><b>${db.employees.length}</b><span class="sub">assignable members</span></div>
+            <div class="card stat"><span class="ic wr">★</span><small>TEAM XP AWARDED</small><b style="color:var(--ac)">${teamXp} XP</b><span class="sub">across all modules</span></div>
+          `;
+        } else {
+          const stats = HynaDB.getEmployeeXPStats(actor.id);
+          const completedProj = visibleProjects.filter(p => p.status === "Completed").length;
+          const nextGoal = stats.rank.next ? `${stats.rank.next - stats.totalXp} XP to next rank` : "Top Rank Achieved";
+          kpiEl.innerHTML = `
+            <div class="card stat"><span class="ic">▣</span><small>ASSIGNED PROJECTS</small><b>${visibleProjects.length}</b><span class="sub">${completedProj} completed</span></div>
+            <div class="card stat"><span class="ic ok">☑</span><small>MY MODULES DONE</small><b class="ok">${stats.completedCount} / ${stats.assignedCount}</b><span class="sub">checklist progress</span></div>
+            <div class="card stat"><span class="ic wr">⚡</span><small>EARNED XP</small><b style="color:var(--ac)">${stats.totalXp} XP</b><span class="sub">${nextGoal}</span></div>
+            <div class="card stat"><span class="ic">${stats.rank.icon}</span><small>CURRENT RANK</small><b style="font-size:20px">${stats.rank.title}</b><span class="sub">HynaStudio Gamification</span></div>
+          `;
+        }
+      }
+
+      const data = getFilteredAndSortedProjects();
+      const listViewEl = $("#proj-view-list");
+      const altViewEl = $("#proj-view-alt");
+
+      if (currentProjectView === "List") {
+        listViewEl.classList.remove("hide");
+        altViewEl.classList.add("hide");
+        renderProjectsTable(data);
       } else {
-        const filtered = allProjectsData.filter(p => p.status.toLowerCase() === val.toLowerCase());
-        renderProjectsTable(filtered);
+        listViewEl.classList.add("hide");
+        altViewEl.classList.remove("hide");
+        renderAlternateProjectView(data, currentProjectView);
       }
     }
 
-    function editProjectMenu(id) {
-      const p = allProjectsData.find(item => item.id === id);
-      if (!p) return;
-      const newStatus = prompt(`Change status for "${p.name}" (Active, Design, Brief):`, p.status);
-      if (newStatus) {
-        p.status = newStatus.trim();
-        renderProjectsTable();
-        toast(`Updated status to ${p.status}`);
+    function renderProjectsTable(data) {
+      const tbody = $("#projects-table-body");
+      const emptyEl = $("#proj-empty-state");
+      if (!tbody) return;
+      const actor = HynaDB.resolveCurrentUser();
+      const isCeo = HynaDB.isAdmin(actor);
+      const list = Array.isArray(data) ? data : getFilteredAndSortedProjects();
+
+      if (list.length === 0) {
+        tbody.innerHTML = "";
+        if (emptyEl) {
+          emptyEl.classList.remove("hide");
+          emptyEl.innerHTML = isCeo
+            ? `<b>No matching projects</b>Create a new project or adjust your filters.`
+            : `<b>No projects assigned to you yet</b>Projects assigned to <b>${esc(actor.email)}</b> by the CEO will appear here automatically.`;
+        }
+        return;
+      }
+
+      if (emptyEl) emptyEl.classList.add("hide");
+
+      tbody.innerHTML = list.map(p => {
+        const modDone = isCeo ? (p.completed_modules || 0) : (p.actor_completed_modules || 0);
+        const modTotal = isCeo ? (p.total_modules || 0) : (p.actor_total_modules || 0);
+        const pct = p.progress || 0;
+        const memberAvatars = (p.members || []).length
+          ? p.members.slice(0, 4).map((m, idx) => `
+              <div title="${esc(m.name)}" style="width:24px;height:24px;border-radius:50%;background:${m.avatarBg};color:${m.avatarColor};font-size:10px;font-weight:700;display:grid;place-items:center;border:1.5px solid #fff;${idx > 0 ? 'margin-left:-6px;' : ''}">${esc(m.initials)}</div>
+            `).join("") + (p.members.length > 4 ? `<span class="sub" style="margin-left:4px;font-size:11px">+${p.members.length - 4}</span>` : "")
+          : `<span class="sub" style="font-size:11px">Unassigned</span>`;
+
+        return `
+          <tr style="border-bottom:1px solid var(--border);transition:background .12s ease;cursor:pointer" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#ffffff'" onclick="openProjectDetail('${p.id}')">
+            <td style="padding:12px 16px;text-align:center" onclick="event.stopPropagation()"><input type="checkbox" class="proj-row-check"></td>
+            <td style="padding:12px 16px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:32px;height:32px;border-radius:8px;background:${p.iconBg};color:${p.iconColor};display:grid;place-items:center;font-size:16px;flex-shrink:0">${p.icon}</div>
+                <div>
+                  <div style="font-weight:700;color:var(--tx);font-size:13px">${esc(p.name)}</div>
+                  ${p.description ? `<div class="sub" style="font-size:11px;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.description)}</div>` : ""}
+                </div>
+              </div>
+            </td>
+            <td style="padding:12px 16px;color:var(--mu);font-size:12px;font-weight:600;white-space:nowrap">${esc(p.deadline || "—")}</td>
+            <td style="padding:12px 16px;min-width:140px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="proj-progress-track" style="flex:1"><div class="proj-progress-fill ${pct === 100 ? 'done' : ''}" style="width:${pct}%"></div></div>
+                <span style="font-size:11px;font-weight:800;color:${pct === 100 ? '#059669' : 'var(--tx)'}">${pct}%</span>
+              </div>
+            </td>
+            <td style="padding:12px 16px;font-size:12px;font-weight:700;color:var(--tx);white-space:nowrap">
+              ${isCeo ? `${p.completed_modules || 0} / ${p.total_modules || 0}` : `${modDone} / ${modTotal} Mine`}
+            </td>
+            <td style="padding:12px 16px">
+              <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block;${getStatusBadgeStyle(p.status)}">${p.status === "Completed" ? "✓ Completed" : esc(p.status)}</span>
+            </td>
+            <td style="padding:12px 16px">
+              <div style="display:flex;align-items:center">${memberAvatars}</div>
+            </td>
+            <td style="padding:12px 16px">
+              <div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--tx)">
+                <span style="width:7px;height:7px;border-radius:50%;background:${p.priorityColor}"></span>
+                ${esc(p.priority)}
+              </div>
+            </td>
+            <td style="padding:12px 16px;text-align:right;white-space:nowrap" onclick="event.stopPropagation()">
+              <button class="pill p" style="padding:5px 11px;font-size:11px" onclick="openProjectDetail('${p.id}')">${isCeo ? 'Manage' : 'Checklist'}</button>
+              ${isCeo ? `<button class="pill" style="padding:5px 9px;font-size:11px" onclick="openNewProjectModal('${p.id}')" title="Edit Project">✎</button>` : ""}
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderAlternateProjectView(data, viewName) {
+      const container = $("#proj-view-alt");
+      const actor = HynaDB.resolveCurrentUser();
+      const isCeo = HynaDB.isAdmin(actor);
+      if (!container) return;
+
+      if (data.length === 0) {
+        container.innerHTML = `<div class="card empty"><b>No projects to display</b>${isCeo ? "Create a project or clear active filters." : "No projects are assigned to your account."}</div>`;
+        return;
+      }
+
+      if (viewName === "Cards") {
+        container.innerHTML = `<div class="proj-cards-grid">${data.map(p => {
+          const pct = p.progress || 0;
+          return `
+            <div class="card" style="display:flex;flex-direction:column;gap:12px;cursor:pointer" onclick="openProjectDetail('${p.id}')">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:36px;height:36px;border-radius:10px;background:${p.iconBg};color:${p.iconColor};display:grid;place-items:center;font-size:18px">${p.icon}</div>
+                  <div>
+                    <div style="font-weight:800;font-size:15px">${esc(p.name)}</div>
+                    <div class="sub" style="font-size:11px">Due ${esc(p.deadline || "—")} · ${esc(p.priority)} Priority</div>
+                  </div>
+                </div>
+                <span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;${getStatusBadgeStyle(p.status)}">${p.status === "Completed" ? "✓ Completed" : esc(p.status)}</span>
+              </div>
+              ${p.description ? `<div class="sub" style="font-size:12px">${esc(p.description)}</div>` : ""}
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:6px">
+                  <span>${p.completed_modules || 0} / ${p.total_modules || 0} Modules</span>
+                  <span style="color:${pct === 100 ? '#059669' : 'var(--ac)'}">${pct}%</span>
+                </div>
+                <div class="proj-progress-track"><div class="proj-progress-fill ${pct === 100 ? 'done' : ''}" style="width:${pct}%"></div></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center">
+                  ${(p.members || []).slice(0, 4).map((m, idx) => `
+                    <div title="${esc(m.name)}" style="width:24px;height:24px;border-radius:50%;background:${m.avatarBg};color:${m.avatarColor};font-size:10px;font-weight:700;display:grid;place-items:center;border:1.5px solid #fff;${idx > 0 ? 'margin-left:-6px;' : ''}">${esc(m.initials)}</div>
+                  `).join("") || '<span class="sub" style="font-size:11px">No members</span>'}
+                </div>
+                <button class="pill p" style="padding:5px 12px;font-size:11px">${isCeo ? 'Manage Modules →' : 'Open Checklist →'}</button>
+              </div>
+            </div>
+          `;
+        }).join("")}</div>`;
+      } else if (viewName === "Kanban") {
+        const statuses = ["Brief", "Design", "Active", "Completed"];
+        container.innerHTML = `<div class="proj-kanban-grid">${statuses.map(st => {
+          const items = data.filter(p => (p.status || "Active").toLowerCase() === st.toLowerCase());
+          return `
+            <div class="proj-kanban-col">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 4px 6px">
+                <span style="font-size:12px;font-weight:800;letter-spacing:.04em">${st.toUpperCase()}</span>
+                <span class="tag">${items.length}</span>
+              </div>
+              ${items.length ? items.map(p => `
+                <div class="card" style="padding:12px;border-radius:14px;cursor:pointer" onclick="openProjectDetail('${p.id}')">
+                  <div style="font-weight:700;font-size:13px;margin-bottom:4px">${p.icon} ${esc(p.name)}</div>
+                  <div class="sub" style="font-size:11px;margin-bottom:8px">Due ${esc(p.deadline || "—")} · ${p.completed_modules || 0}/${p.total_modules || 0} modules</div>
+                  <div class="proj-progress-track"><div class="proj-progress-fill ${p.progress === 100 ? 'done' : ''}" style="width:${p.progress || 0}%"></div></div>
+                </div>
+              `).join("") : `<div class="sub" style="font-size:12px;text-align:center;padding:18px 8px">No projects</div>`}
+            </div>
+          `;
+        }).join("")}</div>`;
+      } else if (viewName === "Calendar") {
+        const ordered = [...data].sort((a, b) => (toISODate(a.deadline) || "9999").localeCompare(toISODate(b.deadline) || "9999"));
+        container.innerHTML = `<div class="card"><h2>Project Deadlines Timeline</h2><div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">${ordered.map(p => `
+          <div class="row" style="margin-top:0;cursor:pointer" onclick="openProjectDetail('${p.id}')">
+            <span class="tag">${esc(p.deadline || "TBD")}</span>
+            <div class="gr">
+              <div>${p.icon} ${esc(p.name)}</div>
+              <div class="sub">${p.completed_modules || 0} / ${p.total_modules || 0} Modules Completed (${p.progress || 0}%)</div>
+            </div>
+            <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;${getStatusBadgeStyle(p.status)}">${esc(p.status)}</span>
+          </div>
+        `).join("")}</div></div>`;
       }
     }
 
-    function openNewProjectModal() {
+    function openProjectDetail(projectId) {
+      activeProjectId = projectId;
+      renderProjectsSection();
+    }
+
+    function closeProjectDetail() {
+      activeProjectId = null;
+      renderProjectsSection();
+    }
+
+    function renderProjectDetail(projectId) {
+      const actor = HynaDB.resolveCurrentUser();
+      const isCeo = HynaDB.isAdmin(actor);
+      const detail = HynaDB.getProjectDetail(projectId, actor);
+      const p = detail.project;
+      const shell = $("#proj-detail-shell");
+      if (!shell) return;
+
+      const pct = p.progress || 0;
+      const isDone = p.status === "Completed" && (p.total_modules || 0) > 0;
+
+      if (isCeo) {
+        const pendingMods = (p.total_modules || 0) - (p.completed_modules || 0);
+        const membersChecklistHtml = detail.members.length
+          ? detail.members.map(m => `
+              <label class="proj-member-chip selected" style="padding:6px 10px">
+                <input type="checkbox" class="add-mod-assignee" value="${esc(m.id)}" checked>
+                <span>${esc(m.name)}</span>
+              </label>
+            `).join("")
+          : `<span class="sub">No project members assigned yet. Click "✎ Edit Project / Members" to assign members first.</span>`;
+
+        const modulesHtml = detail.modules.length
+          ? detail.modules.map((m, idx) => {
+              const assignsHtml = m.assignments.length
+                ? m.assignments.map(a => `
+                    <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid ${a.is_completed ? 'rgba(16,185,129,0.35)' : 'var(--border)'};background:${a.is_completed ? 'rgba(16,185,129,0.08)' : '#fff'};font-size:11px;font-weight:600">
+                      <span>${a.is_completed ? '✓' : '◷'} ${esc(a.employee.name)}</span>
+                      ${a.is_completed ? `<span class="sub" style="font-size:10px">${formatTimestamp(a.completed_at)}</span><button class="pill er" style="padding:2px 7px;font-size:10px" onclick="adminResetModuleAssignment('${m.id}', '${a.employee_id}')">Reset</button>` : `<span class="sub" style="font-size:10px">Pending</span>`}
+                    </div>
+                  `).join("")
+                : `<span class="tag wr">Unassigned</span>`;
+
+              return `
+                <div class="proj-checklist-item ${m.is_completed ? 'completed' : ''}" style="flex-direction:column;align-items:stretch;gap:10px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <span class="tag">${idx + 1}</span>
+                      <div>
+                        <div style="font-weight:800;font-size:14px">${esc(m.title)} ${m.is_completed ? '<span class="tag ok" style="margin-left:6px">✓ COMPLETED</span>' : '<span class="tag wr" style="margin-left:6px">PENDING</span>'}</div>
+                        <div class="sub" style="font-size:12px">${m.deadline ? `Deadline: ${esc(toDisplayDate(m.deadline))} · ` : ''}${m.description ? esc(m.description) : 'Module deliverable'}</div>
+                      </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                      <span class="proj-xp-pill">${m.xp_reward} XP</span>
+                      <button class="pill" style="padding:4px 9px;font-size:11px" onclick="reorderProjectModule('${m.id}', 'up')" title="Move Up">↑</button>
+                      <button class="pill" style="padding:4px 9px;font-size:11px" onclick="reorderProjectModule('${m.id}', 'down')" title="Move Down">↓</button>
+                      <button class="pill p" style="padding:4px 10px;font-size:11px" onclick="openEditModuleModal('${m.id}')">Edit / Reassign</button>
+                      <button class="pill er" style="padding:4px 10px;font-size:11px" onclick="deleteProjectModule('${m.id}')">Delete</button>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:6px;border-top:1px dashed var(--border)">
+                    <span class="sub" style="font-size:11px;font-weight:700">ASSIGNED TO:</span>
+                    ${assignsHtml}
+                  </div>
+                </div>
+              `;
+            }).join("")
+          : `<div class="empty"><b>No modules created yet</b>Add modules below and assign them to project members to start tracking progress and XP.</div>`;
+
+        const memberStatsHtml = detail.memberStats.length
+          ? detail.memberStats.map(ms => `
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span class="av" style="width:30px;height:30px;font-size:11px;background:${ms.employee.avatarBg};color:${ms.employee.avatarColor}">${esc(ms.employee.initials)}</span>
+                    <div class="nm">${esc(ms.employee.name)}<small>${esc(ms.employee.email)}</small></div>
+                  </div>
+                </td>
+                <td style="font-weight:700">${ms.assigned}</td>
+                <td class="ok" style="font-weight:700">${ms.completed}</td>
+                <td class="wr" style="font-weight:700">${ms.pending}</td>
+                <td style="min-width:120px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div class="proj-progress-track" style="flex:1"><div class="proj-progress-fill ${ms.progress === 100 ? 'done' : ''}" style="width:${ms.progress}%"></div></div>
+                    <span style="font-size:11px;font-weight:700">${ms.progress}%</span>
+                  </div>
+                </td>
+                <td><span class="proj-xp-pill earned">+${ms.projectXp} XP</span></td>
+                <td><span class="tag">${ms.rank.icon} ${ms.rank.title} (${ms.totalXp} XP)</span></td>
+              </tr>
+            `).join("")
+          : `<tr><td colspan="7" class="empty">No members assigned to this project yet.</td></tr>`;
+
+        shell.innerHTML = `
+          <div class="hd" style="margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <button class="pill" onclick="closeProjectDetail()">← All Projects</button>
+              <div style="width:40px;height:40px;border-radius:12px;background:${p.iconBg};color:${p.iconColor};display:grid;place-items:center;font-size:20px">${p.icon}</div>
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <h1 style="font-size:22px;margin:0">${esc(p.name)}</h1>
+                  <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;${getStatusBadgeStyle(p.status)}">${isDone ? '✓ Project Completed' : esc(p.status)}</span>
+                  <span class="tag">${esc(p.priority)} Priority</span>
+                </div>
+                <div class="sub">${esc(p.description || "No description provided")} • Start: ${esc(p.start || "—")} • Deadline: ${esc(p.deadline || "—")} • Budget: ${esc(p.amount || "—")}</div>
+              </div>
+            </div>
+            <div class="top">
+              <button class="pill p" onclick="openNewProjectModal('${p.id}')">✎ Edit Project &amp; Members</button>
+              <button class="pill er" onclick="confirmDeleteProject('${p.id}')">Delete Project</button>
+            </div>
+          </div>
+
+          ${isDone ? `
+            <div class="card" style="margin-bottom:16px;border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+              <div>
+                <div style="font-weight:800;color:#047857;font-size:15px">🎉 Project Completed (100%)</div>
+                <div class="sub">All ${p.total_modules} modules have been completed by assigned team members.</div>
+              </div>
+              <span class="tag ok">COMPLETED ${p.completed_at ? '· ' + formatTimestamp(p.completed_at) : ''}</span>
+            </div>
+          ` : ''}
+
+          <!-- CEO Monitoring KPIs -->
+          <div class="grid g5" style="margin-bottom:16px">
+            <div class="card stat"><span class="ic">👥</span><small>ASSIGNED MEMBERS</small><b>${detail.members.length}</b><span class="sub">authorized staff</span></div>
+            <div class="card stat"><span class="ic">🧩</span><small>TOTAL MODULES</small><b>${p.total_modules || 0}</b><span class="sub">${detail.totalXpPool} total XP pool</span></div>
+            <div class="card stat"><span class="ic ok">✓</span><small>COMPLETED MODULES</small><b class="ok">${p.completed_modules || 0}</b><span class="sub">${pct}% overall progress</span></div>
+            <div class="card stat"><span class="ic wr">◷</span><small>PENDING MODULES</small><b class="wr">${pendingMods}</b><span class="sub">remaining deliverables</span></div>
+            <div class="card stat"><span class="ic">★</span><small>PROJECT XP EARNED</small><b style="color:var(--ac)">${detail.actorProjectXp} XP</b><span class="sub">awarded to members</span></div>
+          </div>
+
+          <!-- Progress Bar Card -->
+          <div class="card" style="margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+              <div style="font-weight:800;font-size:14px">Automatic Project Progress</div>
+              <div style="font-weight:800;font-size:14px;color:${pct === 100 ? '#059669' : 'var(--ac)'}">${p.completed_modules || 0} / ${p.total_modules || 0} Modules Completed (${pct}%)</div>
+            </div>
+            <div class="proj-progress-track" style="height:12px">
+              <div class="proj-progress-fill ${pct === 100 ? 'done' : ''}" style="width:${pct}%"></div>
+            </div>
+          </div>
+
+          <!-- Add Module + Modules Management -->
+          <div class="card" style="margin-bottom:16px">
+            <div class="hd" style="margin-bottom:12px">
+              <div>
+                <h2>Project Modules &amp; Assignments</h2>
+                <div class="sub">Add modules, assign one or more project members, define XP rewards, reorder, or reset completions.</div>
+              </div>
+              <span class="tag">${detail.modules.length} Modules</span>
+            </div>
+
+            <div style="background:#f9fafb;border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:16px">
+              <div style="font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--mu);margin-bottom:8px">+ ADD MODULE TO PROJECT</div>
+              <div class="field" style="margin-top:0">
+                <input id="quick-mod-title" placeholder="Module title (e.g. Authentication System)" style="flex:2">
+                <input id="quick-mod-xp" type="number" min="0" step="10" value="100" placeholder="XP" style="flex:none;width:110px">
+                <input id="quick-mod-deadline" type="date" style="flex:none;width:160px" title="Optional module deadline">
+                <button class="pill p" onclick="quickAddModule('${p.id}')">+ Add Module</button>
+              </div>
+              <div style="margin-top:10px">
+                <div class="sub" style="font-size:11px;font-weight:700;margin-bottom:6px">ASSIGN MODULE TO MEMBERS:</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">${membersChecklistHtml}</div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px">
+              ${modulesHtml}
+            </div>
+          </div>
+
+          <!-- Individual Employee Monitoring -->
+          <div class="card scroll">
+            <div class="hd" style="margin-bottom:10px">
+              <div>
+                <h2>Team Member Progress &amp; XP Monitoring</h2>
+                <div class="sub">Individual module completion and XP earned within this project.</div>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>MEMBER</th>
+                  <th>ASSIGNED</th>
+                  <th>COMPLETED</th>
+                  <th>PENDING</th>
+                  <th>PROGRESS</th>
+                  <th>PROJECT XP</th>
+                  <th>GLOBAL RANK &amp; XP</th>
+                </tr>
+              </thead>
+              <tbody>${memberStatsHtml}</tbody>
+            </table>
+          </div>
+        `;
+      } else {
+        // Employee View: clean, checklist-oriented, progress-focused, strictly showing only modules assigned to actor
+        const empStats = HynaDB.getEmployeeXPStats(actor.id);
+        const myModules = detail.modules;
+        const myDone = myModules.filter(m => m.assignments.some(a => a.employee_id === actor.id && a.is_completed)).length;
+
+        const checklistHtml = myModules.length
+          ? myModules.map(m => {
+              const myAssign = m.assignments.find(a => a.employee_id === actor.id);
+              const done = myAssign && myAssign.is_completed;
+              return `
+                <div class="proj-checklist-item ${done ? 'completed' : ''}">
+                  <button class="proj-check-btn ${done ? 'checked' : ''}" onclick="${done ? `toast('Already completed! Admin reset required to reopen.')` : `completeMyModule('${m.id}')`}" title="${done ? 'Completed' : 'Mark module as completed'}">
+                    ${done ? '✓' : ''}
+                  </button>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-weight:700;font-size:14px;${done ? 'text-decoration:line-through;color:var(--mu)' : 'color:var(--tx)'}">
+                      ${esc(m.title)}
+                    </div>
+                    <div class="sub" style="font-size:12px">
+                      ${done ? `Completed ${formatTimestamp(myAssign.completed_at)}` : (m.deadline ? `Deadline: ${esc(toDisplayDate(m.deadline))}` : 'Ready to complete')}
+                    </div>
+                  </div>
+                  <span class="proj-xp-pill ${done ? 'earned' : ''}">${done ? `+${m.xp_reward} XP Earned` : `${m.xp_reward} XP`}</span>
+                  ${done
+                    ? `<span class="tag ok">✓ DONE</span>`
+                    : `<button class="pill p" style="padding:6px 12px;font-size:12px" onclick="completeMyModule('${m.id}')">Complete</button>`}
+                </div>
+              `;
+            }).join("")
+          : `<div class="empty"><b>No modules assigned to you in this project</b>Check back with your CEO/Admin when modules are assigned.</div>`;
+
+        shell.innerHTML = `
+          <div class="hd" style="margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <button class="pill" onclick="closeProjectDetail()">← My Projects</button>
+              <div style="width:40px;height:40px;border-radius:12px;background:${p.iconBg};color:${p.iconColor};display:grid;place-items:center;font-size:20px">${p.icon}</div>
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <h1 style="font-size:22px;margin:0">${esc(p.name)}</h1>
+                  <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;${getStatusBadgeStyle(p.status)}">${isDone ? '✓ Completed' : esc(p.status)}</span>
+                </div>
+                <div class="sub">${esc(p.description || "Assigned project")} • Deadline: ${esc(p.deadline || "—")} • Priority: ${esc(p.priority)}</div>
+              </div>
+            </div>
+            <div class="top">
+              <span class="proj-xp-pill earned">Project XP: ${detail.actorProjectXp} XP</span>
+              <span class="proj-xp-pill">${empStats.rank.icon} Total: ${empStats.totalXp} XP</span>
+            </div>
+          </div>
+
+          ${isDone ? `
+            <div class="card" style="margin-bottom:16px;border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+              <div>
+                <div style="font-weight:800;color:#047857;font-size:15px">🎉 Project Completed!</div>
+                <div class="sub">All project modules are 100% complete.</div>
+              </div>
+              <span class="tag ok">100% COMPLETE</span>
+            </div>
+          ` : ''}
+
+          <div class="card" style="margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+              <div>
+                <div style="font-weight:800;font-size:14px">Overall Project Progress</div>
+                <div class="sub" style="font-size:12px">Your checklist: ${myDone} / ${myModules.length} assigned modules completed</div>
+              </div>
+              <div style="font-weight:800;font-size:15px;color:${pct === 100 ? '#059669' : 'var(--ac)'}">${p.completed_modules || 0} / ${p.total_modules || 0} Modules Completed (${pct}%)</div>
+            </div>
+            <div class="proj-progress-track" style="height:10px">
+              <div class="proj-progress-fill ${pct === 100 ? 'done' : ''}" style="width:${pct}%"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="hd" style="margin-bottom:12px">
+              <div>
+                <h2>My Module Checklist</h2>
+                <div class="sub">Complete your assigned modules below to earn XP and advance project progress.</div>
+              </div>
+              <span class="tag">${myDone} / ${myModules.length} Done</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              ${checklistHtml}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function completeMyModule(moduleId) {
+      try {
+        const actor = HynaDB.resolveCurrentUser();
+        const res = HynaDB.completeModuleAssignment(moduleId, actor.id, actor);
+        renderProjectsSection();
+        if (res.alreadyCompleted) {
+          toast("Module already completed");
+        } else if (res.projectCompletedNow) {
+          toast(`+${res.awardedXp} XP earned! 🎉 Project marked Completed (100%)!`);
+        } else {
+          toast(`Module completed! +${res.awardedXp} XP awarded (Progress: ${res.project.progress}%)`);
+        }
+      } catch (err) {
+        toast(err.message);
+      }
+    }
+
+    function adminResetModuleAssignment(moduleId, employeeId) {
+      try {
+        const actor = HynaDB.resolveCurrentUser();
+        const res = HynaDB.resetModuleAssignment(moduleId, employeeId, actor);
+        renderProjectsSection();
+        toast(`Module reset. ${res.reversedXp > 0 ? `Reversed ${res.reversedXp} XP. ` : ''}Progress: ${res.project.progress}%`);
+      } catch (err) {
+        toast(err.message);
+      }
+    }
+
+    function quickAddModule(projectId) {
+      try {
+        const actor = HynaDB.resolveCurrentUser();
+        const titleEl = $("#quick-mod-title");
+        const xpEl = $("#quick-mod-xp");
+        const dlEl = $("#quick-mod-deadline");
+        const title = titleEl ? titleEl.value.trim() : "";
+        if (!title) {
+          toast("Module title is required");
+          if (titleEl) titleEl.focus();
+          return;
+        }
+        const assigneeIds = Array.from(document.querySelectorAll(".add-mod-assignee:checked")).map(cb => cb.value);
+        if (assigneeIds.length === 0) {
+          toast("Select at least one member for this module");
+          return;
+        }
+        HynaDB.addModule(projectId, {
+          title,
+          xp_reward: xpEl ? Number(xpEl.value) : 100,
+          deadline: dlEl ? dlEl.value : "",
+          assigneeIds
+        }, actor);
+        renderProjectsSection();
+        toast(`Module "${title}" added!`);
+      } catch (err) {
+        toast(err.message);
+      }
+    }
+
+    function reorderProjectModule(moduleId, dir) {
+      try {
+        HynaDB.reorderModule(moduleId, dir, HynaDB.resolveCurrentUser());
+        renderProjectsSection();
+      } catch (err) {
+        toast(err.message);
+      }
+    }
+
+    function deleteProjectModule(moduleId) {
+      if (!confirm("Delete this module from the project?")) return;
+      try {
+        HynaDB.deleteModule(moduleId, HynaDB.resolveCurrentUser());
+        renderProjectsSection();
+        toast("Module removed and progress recalculated");
+      } catch (err) {
+        toast(err.message);
+      }
+    }
+
+    function openEditModuleModal(moduleId) {
+      const actor = HynaDB.resolveCurrentUser();
+      if (!HynaDB.isAdmin(actor)) { toast("CEO/Admin only"); return; }
+      const db = HynaDB.load();
+      const mod = db.project_modules.find(m => m.id === moduleId);
+      if (!mod) return;
+      const members = HynaDB.getProjectMembersList(db, mod.project_id);
+      const currentAssignees = new Set(db.module_assignments.filter(a => a.module_id === moduleId).map(a => a.employee_id));
+
+      $("#modal-box").classList.remove("wide");
       $("#modal-box").innerHTML = `
-        <div class="hd" style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:18px">
-          <h2>Create New Project</h2>
+        <div class="hd" style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px">
+          <h2>Edit Module</h2>
           <button class="pill" onclick="closeModal()">✕</button>
         </div>
-
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <!-- 1. PROJECT NAME -->
+        <div style="display:flex;flex-direction:column;gap:12px">
           <div>
-            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PROJECT NAME</label>
-            <input id="np-name" placeholder="e.g. Website Redesign, Mobile App v2" style="width:100%">
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px">MODULE TITLE</label>
+            <input id="em-title" value="${esc(mod.title)}" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px">
           </div>
-
-          <!-- 2. DATES: START DATE & DEADLINE -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div>
-              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">START DATE</label>
-              <input id="np-start" type="date" value="2026-11-28" style="width:100%">
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px">XP REWARD</label>
+              <input id="em-xp" type="number" min="0" value="${mod.xp_reward}" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px">
             </div>
             <div>
-              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">DEADLINE</label>
-              <input id="np-deadline" type="date" value="2027-02-15" style="width:100%">
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px">DEADLINE (OPTIONAL)</label>
+              <input id="em-deadline" type="date" value="${esc(toISODate(mod.deadline))}" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px">
             </div>
           </div>
-
-          <!-- 3. PROJECT AMOUNT & STATUS -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div>
-              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PROJECT AMOUNT (₹ / $)</label>
-              <input id="np-amount" placeholder="e.g. ₹5,00,000" value="₹5,00,000" style="width:100%">
-            </div>
-            <div>
-              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">STATUS</label>
-              <select id="np-status" style="width:100%">
-                <option value="Active">Active</option>
-                <option value="Design">Design</option>
-                <option value="Brief">Brief</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- 4. PEOPLE & PRIORITY -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div>
-              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PEOPLE (ASSIGN TEAM)</label>
-              <input id="np-people" placeholder="Initials or names (e.g. H, HM, TA)" value="H, HM" style="width:100%">
-            </div>
-            <div>
-              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PRIORITY</label>
-              <select id="np-priority" style="width:100%">
-                <option value="High">● High</option>
-                <option value="Medium" selected>● Medium</option>
-                <option value="Low">● Low</option>
-              </select>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:6px">ASSIGNED MEMBERS</label>
+            <div class="proj-member-grid">
+              ${members.map(m => `
+                <label class="proj-member-chip ${currentAssignees.has(m.id) ? 'selected' : ''}">
+                  <input type="checkbox" class="em-assignee" value="${esc(m.id)}" ${currentAssignees.has(m.id) ? 'checked' : ''} onchange="this.closest('.proj-member-chip').classList.toggle('selected', this.checked)">
+                  <span>${esc(m.name)}</span>
+                </label>
+              `).join("") || '<span class="sub">No project members</span>'}
             </div>
           </div>
         </div>
-
-        <div class="top" style="margin-top:22px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:14px">
+        <div class="top" style="margin-top:18px;justify-content:flex-end">
           <button class="pill" onclick="closeModal()">Cancel</button>
-          <button class="pill p" style="background:#d92662;color:#fff;border:none;box-shadow:0 2px 10px rgba(217,38,98,0.3)" onclick="saveNewProjectItem()">+ Add Project</button>
+          <button class="pill p" onclick="saveEditedModule('${mod.id}')">Save Module</button>
         </div>
       `;
       $("#modal-layer").classList.remove("hide");
     }
 
-    function saveNewProjectItem() {
+    function saveEditedModule(moduleId) {
       try {
-        const nameEl = document.getElementById("np-name");
+        const title = ($("#em-title").value || "").trim();
+        if (!title) { toast("Module title is required"); return; }
+        const xp_reward = Number($("#em-xp").value) || 0;
+        const deadline = $("#em-deadline").value || "";
+        const assigneeIds = Array.from(document.querySelectorAll(".em-assignee:checked")).map(c => c.value);
+        HynaDB.updateModule(moduleId, { title, xp_reward, deadline, assigneeIds }, HynaDB.resolveCurrentUser());
+        closeModal();
+        renderProjectsSection();
+        toast("Module updated");
+      } catch (err) {
+        toast(err.message);
+      }
+    }
+
+    function confirmDeleteProject(projectId) {
+      if (!confirm("Delete this project and all of its modules and assignments?")) return;
+      try {
+        HynaDB.deleteProject(projectId, HynaDB.resolveCurrentUser());
+        activeProjectId = null;
+        renderProjectsSection();
+        toast("Project deleted");
+      } catch (err) {
+        toast(err.message);
+      }
+    }
+
+    function sortProjectsTable(sortBy) {
+      renderProjectsSection();
+      toast(`Sorted by ${sortBy}`);
+    }
+
+    function openFilterModal() {
+      const q = prompt("Filter projects by keyword (name, description, or status):", projectKeywordFilter);
+      if (q !== null) {
+        projectKeywordFilter = q.trim();
+        const clearBtn = $("#proj-clear-keyword-btn");
+        if (clearBtn) clearBtn.classList.toggle("hide", !projectKeywordFilter);
+        renderProjectsSection();
+      }
+    }
+
+    function clearProjectKeywordFilter() {
+      projectKeywordFilter = "";
+      const clearBtn = $("#proj-clear-keyword-btn");
+      if (clearBtn) clearBtn.classList.add("hide");
+      renderProjectsSection();
+    }
+
+    function filterProjectsTable() {
+      renderProjectsSection();
+    }
+
+    function toggleAllProjectChecks(checked) {
+      document.querySelectorAll(".proj-row-check").forEach(cb => {
+        cb.checked = checked;
+      });
+    }
+
+    function switchProjectView(viewName, btn) {
+      currentProjectView = viewName;
+      document.querySelectorAll("#proj-views-bar .pill").forEach(b => b.classList.remove("on"));
+      if (btn) btn.classList.add("on");
+      renderProjectsSection();
+    }
+
+    function renderModalMemberPicker(selectedIds) {
+      const db = HynaDB.load();
+      const box = $("#np-members-picker");
+      if (!box) return;
+      const selSet = new Set(selectedIds || []);
+      if (db.employees.length === 0) {
+        box.innerHTML = `<div class="sub">No employees in directory yet. Use "+ Quick Add Employee" below.</div>`;
+        return;
+      }
+      box.innerHTML = db.employees.map(emp => `
+        <label class="proj-member-chip ${selSet.has(emp.id) ? 'selected' : ''}">
+          <input type="checkbox" class="np-member-cb" value="${esc(emp.id)}" ${selSet.has(emp.id) ? 'checked' : ''} onchange="onModalMemberSelectionChange()">
+          <span style="width:22px;height:22px;border-radius:50%;background:${emp.avatarBg};color:${emp.avatarColor};font-size:10px;font-weight:700;display:grid;place-items:center;flex-shrink:0">${esc(emp.initials)}</span>
+          <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            <b>${esc(emp.name)}</b><br><small class="sub" style="font-size:10px">${esc(emp.email)}</small>
+          </span>
+        </label>
+      `).join("");
+    }
+
+    function getSelectedModalMemberIds() {
+      return Array.from(document.querySelectorAll(".np-member-cb:checked")).map(cb => cb.value);
+    }
+
+    function onModalMemberSelectionChange() {
+      document.querySelectorAll(".np-member-cb").forEach(cb => {
+        cb.closest(".proj-member-chip").classList.toggle("selected", cb.checked);
+      });
+      renderModalModuleDrafts();
+    }
+
+    function renderModalModuleDrafts() {
+      const listEl = $("#np-modules-draft-list");
+      if (!listEl) return;
+      const db = HynaDB.load();
+      const selectedMemberIds = getSelectedModalMemberIds();
+      const selectedMembers = db.employees.filter(e => selectedMemberIds.includes(e.id));
+
+      if (modalModuleDrafts.length === 0) {
+        listEl.innerHTML = `<div class="sub" style="padding:8px 0">No initial modules added yet. You can add modules here or inside the project workspace.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = modalModuleDrafts.map((m, idx) => `
+        <div style="border:1px solid var(--border);border-radius:12px;padding:10px;background:#f9fafb;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span class="tag">${idx + 1}</span>
+            <input value="${esc(m.title)}" placeholder="Module title" oninput="modalModuleDrafts[${idx}].title=this.value" style="flex:2;min-width:160px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#fff">
+            <input type="number" min="0" step="10" value="${m.xp_reward}" placeholder="XP" oninput="modalModuleDrafts[${idx}].xp_reward=Number(this.value)||0" style="width:90px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#fff">
+            <input type="date" value="${esc(m.deadline || '')}" oninput="modalModuleDrafts[${idx}].deadline=this.value" style="width:140px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#fff">
+            <button type="button" class="pill" style="padding:4px 8px;font-size:11px" onclick="moveDraftModule(${idx}, -1)">↑</button>
+            <button type="button" class="pill" style="padding:4px 8px;font-size:11px" onclick="moveDraftModule(${idx}, 1)">↓</button>
+            <button type="button" class="pill er" style="padding:4px 8px;font-size:11px" onclick="removeDraftModule(${idx})">✕</button>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <span class="sub" style="font-size:11px;font-weight:700">Assign:</span>
+            ${selectedMembers.length
+              ? selectedMembers.map(emp => {
+                  const checked = m.assigneeIds.includes(emp.id);
+                  return `
+                    <label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--border);background:#fff;cursor:pointer">
+                      <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleDraftModuleAssignee(${idx}, '${emp.id}', this.checked)">
+                      <span>${esc(emp.name)}</span>
+                    </label>
+                  `;
+                }).join("")
+              : `<span class="sub" style="font-size:11px">Select project members above first</span>`}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function addDraftModuleRow() {
+      const selected = getSelectedModalMemberIds();
+      modalModuleDrafts.push({
+        title: "",
+        xp_reward: 100,
+        deadline: "",
+        assigneeIds: selected.length ? [selected[0]] : []
+      });
+      renderModalModuleDrafts();
+    }
+
+    function removeDraftModule(idx) {
+      modalModuleDrafts.splice(idx, 1);
+      renderModalModuleDrafts();
+    }
+
+    function moveDraftModule(idx, delta) {
+      const target = idx + delta;
+      if (target < 0 || target >= modalModuleDrafts.length) return;
+      const tmp = modalModuleDrafts[idx];
+      modalModuleDrafts[idx] = modalModuleDrafts[target];
+      modalModuleDrafts[target] = tmp;
+      renderModalModuleDrafts();
+    }
+
+    function toggleDraftModuleAssignee(idx, empId, checked) {
+      const list = modalModuleDrafts[idx].assigneeIds;
+      if (checked && !list.includes(empId)) list.push(empId);
+      if (!checked) modalModuleDrafts[idx].assigneeIds = list.filter(id => id !== empId);
+    }
+
+    function quickAddMemberInsideProjectModal() {
+      const name = ($("#np-quick-emp-name").value || "").trim();
+      const email = ($("#np-quick-emp-email").value || "").trim().toLowerCase();
+      const role = ($("#np-quick-emp-role").value || "").trim() || "Engineer";
+      if (!name || !email || !email.includes("@")) {
+        toast("Enter valid member name and corporate email");
+        return;
+      }
+      const initials = name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) || "HS";
+      const created = HynaDB.upsertEmployee({
+        initials,
+        name,
+        designation: role,
+        department: "Engineering",
+        email
+      });
+      syncEFromDB();
+      renderEmployees();
+      const currentSelected = getSelectedModalMemberIds();
+      currentSelected.push(created.id);
+      renderModalMemberPicker(currentSelected);
+      renderModalModuleDrafts();
+      $("#np-quick-emp-name").value = "";
+      $("#np-quick-emp-email").value = "";
+      toast(`Added ${name} (${email}) and selected for project`);
+    }
+
+    function openNewProjectModal(editProjectId = null) {
+      const actor = HynaDB.resolveCurrentUser();
+      if (!HynaDB.isAdmin(actor)) {
+        toast("Only CEO/Admin can create or edit projects");
+        return;
+      }
+
+      const db = HynaDB.load();
+      const existing = editProjectId ? db.projects.find(p => p.id === editProjectId) : null;
+      const existingMemberIds = existing
+        ? db.project_members.filter(pm => pm.project_id === existing.id).map(pm => pm.employee_id)
+        : [];
+      modalModuleDrafts = [];
+
+      const box = $("#modal-box");
+      box.classList.add("wide");
+      box.innerHTML = `
+        <div class="hd" style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:16px">
+          <h2>${existing ? 'Edit Project &amp; Team Assignment' : 'Create New Project'}</h2>
+          <button class="pill" onclick="closeModal()">✕</button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PROJECT NAME</label>
+            <input id="np-name" value="${esc(existing ? existing.name : '')}" placeholder="e.g. Nearby – Local Request & Delivery App" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px">
+          </div>
+
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PROJECT DESCRIPTION</label>
+            <textarea id="np-desc" rows="2" placeholder="Project scope, objectives, and deliverables…" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px">${esc(existing ? (existing.description || '') : '')}</textarea>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">START DATE</label>
+              <input id="np-start" type="date" value="${esc(existing ? (toISODate(existing.start) || '2026-11-28') : '2026-11-28')}" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">DEADLINE</label>
+              <input id="np-deadline" type="date" value="${esc(existing ? (toISODate(existing.deadline) || '2027-02-15') : '2027-02-15')}" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px">
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PROJECT AMOUNT</label>
+              <input id="np-amount" value="${esc(existing ? existing.amount : '₹5,00,000')}" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">STATUS</label>
+              <select id="np-status" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px">
+                <option value="Active" ${!existing || existing.status === 'Active' ? 'selected' : ''}>Active</option>
+                <option value="Design" ${existing && existing.status === 'Design' ? 'selected' : ''}>Design</option>
+                <option value="Brief" ${existing && existing.status === 'Brief' ? 'selected' : ''}>Brief</option>
+                ${existing && existing.status === 'Completed' ? '<option value="Completed" selected>Completed</option>' : ''}
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">PRIORITY</label>
+              <select id="np-priority" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px">
+                <option value="High" ${existing && existing.priority === 'High' ? 'selected' : ''}>● High</option>
+                <option value="Medium" ${!existing || existing.priority === 'Medium' ? 'selected' : ''}>● Medium</option>
+                <option value="Low" ${existing && existing.priority === 'Low' ? 'selected' : ''}>● Low</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Project Members Multi-Select -->
+          <div style="border:1px solid var(--border);border-radius:14px;padding:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+              <label style="font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--mu)">ASSIGN PROJECT MEMBERS (ONLY SELECTED MEMBERS CAN SEE THIS PROJECT)</label>
+            </div>
+            <div id="np-members-picker" class="proj-member-grid"></div>
+            <div style="display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);flex-wrap:wrap">
+              <input id="np-quick-emp-name" placeholder="Quick add name" style="flex:1;min-width:120px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px">
+              <input id="np-quick-emp-email" placeholder="Corporate email" style="flex:1;min-width:150px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px">
+              <input id="np-quick-emp-role" placeholder="Role" value="Engineer" style="width:100px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px">
+              <button type="button" class="pill" style="padding:6px 10px;font-size:11px" onclick="quickAddMemberInsideProjectModal()">+ Add Employee</button>
+            </div>
+          </div>
+
+          ${!existing ? `
+            <!-- Initial Project Modules Builder -->
+            <div style="border:1px solid var(--border);border-radius:14px;padding:12px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <label style="font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--mu)">PROJECT MODULES &amp; XP REWARDS</label>
+                <button type="button" class="pill p" style="padding:5px 10px;font-size:11px" onclick="addDraftModuleRow()">+ Add Module</button>
+              </div>
+              <div id="np-modules-draft-list" style="display:flex;flex-direction:column;gap:8px"></div>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="top" style="margin-top:18px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:14px">
+          <button class="pill" onclick="closeModal()">Cancel</button>
+          <button class="pill p" style="background:#d92662;color:#fff;border:none;box-shadow:0 2px 10px rgba(217,38,98,0.3)" onclick="saveNewProjectItem('${existing ? existing.id : ''}')">${existing ? 'Save Changes' : '+ Create Project'}</button>
+        </div>
+      `;
+      renderModalMemberPicker(existingMemberIds);
+      if (!existing) renderModalModuleDrafts();
+      $("#modal-layer").classList.remove("hide");
+    }
+
+    function saveNewProjectItem(editProjectId = "") {
+      try {
+        const actor = HynaDB.resolveCurrentUser();
+        const nameEl = $("#np-name");
         const name = nameEl ? nameEl.value.trim() : "";
         if (!name) {
           toast("Project Name is required");
@@ -2617,77 +4385,134 @@
           return;
         }
 
-        const startEl = document.getElementById("np-start");
-        const deadlineEl = document.getElementById("np-deadline");
-        const statusEl = document.getElementById("np-status");
-        const priorityEl = document.getElementById("np-priority");
-        const amountEl = document.getElementById("np-amount");
-        const peopleEl = document.getElementById("np-people");
-
-        const formatDate = (val) => {
-          if (!val) return "28/11/2026";
-          const parts = val.split("-");
-          return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : val;
+        const payload = {
+          name,
+          description: ($("#np-desc") && $("#np-desc").value.trim()) || "",
+          start: toDisplayDate(($("#np-start") && $("#np-start").value) || "2026-11-28"),
+          deadline: toDisplayDate(($("#np-deadline") && $("#np-deadline").value) || "2027-02-15"),
+          amount: ($("#np-amount") && $("#np-amount").value.trim()) || "₹5,00,000",
+          status: ($("#np-status") && $("#np-status").value) || "Active",
+          priority: ($("#np-priority") && $("#np-priority").value) || "Medium",
+          memberIds: getSelectedModalMemberIds(),
+          modules: modalModuleDrafts
         };
 
-        const start = startEl && startEl.value ? formatDate(startEl.value) : "28/11/2026";
-        const deadline = deadlineEl && deadlineEl.value ? formatDate(deadlineEl.value) : "15/02/2027";
-        const status = statusEl ? statusEl.value : "Active";
-        const priority = priorityEl ? priorityEl.value : "Medium";
-        const amount = amountEl && amountEl.value.trim() ? amountEl.value.trim() : "₹5,00,000";
-        const peopleRaw = peopleEl && peopleEl.value.trim() ? peopleEl.value.trim() : "HS";
+        if (editProjectId) {
+          HynaDB.updateProject(editProjectId, payload, actor);
+          toast(`Updated project "${name}"`);
+        } else {
+          const created = HynaDB.createProject(payload, actor);
+          activeProjectId = created.id;
+          toast(`Project "${name}" created! Add or manage modules below.`);
+        }
 
-        const priorityColor = priority === "High" ? "#ef4444" : priority === "Medium" ? "#f59e0b" : "#3b82f6";
-        
-        const avatarBgs = [
-          { bg: "#fef3c7", color: "#d97706" },
-          { bg: "#dbeafe", color: "#2563eb" },
-          { bg: "#dcfce7", color: "#16a34a" },
-          { bg: "#fce7f3", color: "#db2777" },
-          { bg: "#e0e7ff", color: "#4f46e5" }
-        ];
-
-        const people = peopleRaw.split(",").map((item, idx) => {
-          const init = item.trim();
-          const theme = avatarBgs[idx % avatarBgs.length];
-          return {
-            initials: init || "U",
-            bg: theme.bg,
-            color: theme.color
-          };
-        });
-
-        allProjectsData.unshift({
-          id: "p" + Date.now(),
-          name: name,
-          icon: "🚀",
-          iconBg: "#eff6ff",
-          iconColor: "#2563eb",
-          start: start,
-          deadline: deadline,
-          amount: amount,
-          status: status,
-          people: people,
-          priority: priority,
-          priorityColor: priorityColor
-        });
-
-        renderProjectsTable();
         closeModal();
-        toast(`Project "${name}" added to portfolio!`);
+        renderProjectsSection();
       } catch (err) {
-        console.error("Error creating project:", err);
+        console.error("Error saving project:", err);
         toast("Error saving project: " + err.message);
       }
     }
 
     function openAssignTeamModal() {
-      const email = prompt("Invite team member by email to projects:");
-      if (email) toast(`Invitation sent to ${email}`);
+      const actor = HynaDB.resolveCurrentUser();
+      if (!HynaDB.isAdmin(actor)) { toast("CEO/Admin only"); return; }
+      const db = HynaDB.load();
+      $("#modal-box").classList.remove("wide");
+      $("#modal-box").innerHTML = `
+        <div class="hd" style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px">
+          <h2>Invite &amp; Assign Member to Project</h2>
+          <button class="pill" onclick="closeModal()">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <input id="inv-name" placeholder="Employee Full Name" style="padding:9px 12px;border:1px solid var(--border);border-radius:10px">
+          <input id="inv-email" type="email" placeholder="Corporate Email (used for login)" style="padding:9px 12px;border:1px solid var(--border);border-radius:10px">
+          <input id="inv-role" placeholder="Designation (e.g. Full-Stack Developer)" value="Developer" style="padding:9px 12px;border:1px solid var(--border);border-radius:10px">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px">ASSIGN TO PROJECT (OPTIONAL)</label>
+            <select id="inv-proj" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px">
+              <option value="">-- Directory Only --</option>
+              ${db.projects.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+        <div class="top" style="margin-top:16px;justify-content:flex-end">
+          <button class="pill" onclick="closeModal()">Cancel</button>
+          <button class="pill p" onclick="submitProjectInvite()">Add &amp; Assign</button>
+        </div>
+      `;
+      $("#modal-layer").classList.remove("hide");
     }
 
-    // Initialize projects table
-    renderProjectsTable();
+    function submitProjectInvite() {
+      try {
+        const actor = HynaDB.resolveCurrentUser();
+        HynaDB.assertAdmin(actor);
+        const name = ($("#inv-name").value || "").trim();
+        const email = ($("#inv-email").value || "").trim().toLowerCase();
+        const role = ($("#inv-role").value || "").trim() || "Developer";
+        const projId = $("#inv-proj").value;
+        if (!name || !email || !email.includes("@")) {
+          toast("Valid name and email are required");
+          return;
+        }
+        const initials = name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) || "HS";
+        const emp = HynaDB.upsertEmployee({ initials, name, designation: role, department: "Engineering", email });
+        syncEFromDB();
+        renderEmployees();
+
+        if (projId) {
+          const db = HynaDB.load();
+          if (!HynaDB.isProjectMember(db, projId, emp.id)) {
+            db.project_members.push({
+              id: uid("pm"),
+              project_id: projId,
+              employee_id: emp.id,
+              assigned_by: actor.email,
+              assigned_at: new Date().toISOString()
+            });
+            HynaDB.save(db);
+          }
+        }
+        closeModal();
+        renderProjectsSection();
+        toast(`${name} added${projId ? ' and assigned to project' : ''}!`);
+      } catch (err) {
+        toast(err.message);
+      }
+    }
+
+    function openXPLeaderboardModal() {
+      const board = HynaDB.getLeaderboard();
+      const box = $("#modal-box");
+      box.classList.remove("wide");
+      box.innerHTML = `
+        <div class="hd" style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px">
+          <h2>🏆 HynaStudio XP Leaderboard</h2>
+          <button class="pill" onclick="closeModal()">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto">
+          ${board.length ? board.map((row, idx) => `
+            <div class="row" style="margin-top:0">
+              <span class="tag ${idx === 0 ? 'ok' : ''}">#${idx + 1}</span>
+              <span class="av" style="width:34px;height:34px;font-size:11px;background:${row.employee.avatarBg};color:${row.employee.avatarColor}">${esc(row.employee.initials)}</span>
+              <div class="gr">
+                <div>${esc(row.employee.name)} <span class="tag">${row.rank.icon} ${row.rank.title}</span></div>
+                <div class="sub">${row.completedModules} modules completed · ${esc(row.employee.email)}</div>
+              </div>
+              <span class="proj-xp-pill earned">${row.xp} XP</span>
+            </div>
+          `).join("") : `<div class="empty"><b>No XP records yet</b>Complete project modules to climb the leaderboard.</div>`}
+        </div>
+        <div class="top" style="margin-top:16px;justify-content:flex-end">
+          <button class="pill" onclick="closeModal()">Close</button>
+        </div>
+      `;
+      $("#modal-layer").classList.remove("hide");
+    }
+
+    // Initialize projects section
+    renderProjectsSection();
 
     function createIssue() {
       const val = $("#issue-text").value.trim();
@@ -2702,12 +4527,6 @@
       list.prepend(row);
       $("#issue-text").value = "";
       toast(`Created Issue HS-${num}`);
-    }
-
-    function switchProjectView(viewName, btn) {
-      document.querySelectorAll("#proj-views-bar .pill").forEach(b => b.classList.remove("on"));
-      if (btn) btn.classList.add("on");
-      toast(`${viewName} view selected`);
     }
 
     /* Global Search */

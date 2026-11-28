@@ -868,9 +868,36 @@
         'employee@hynastudio.com': 'employee'
       };
 
+      function getDirectoryEmployees() {
+        try {
+          var raw = localStorage.getItem('hyna_office_db_v1');
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          return Array.isArray(parsed.employees) ? parsed.employees : [];
+        } catch (err) {
+          return [];
+        }
+      }
+
+      function findEmployeeByEmail(email) {
+        var norm = (email || '').trim().toLowerCase();
+        var list = getDirectoryEmployees();
+        for (var i = 0; i < list.length; i++) {
+          if ((list[i].email || '').trim().toLowerCase() === norm) {
+            return list[i];
+          }
+        }
+        return null;
+      }
+
       emailInput.addEventListener('input', function () {
-        var detected = emailRoleMap[emailInput.value.trim().toLowerCase()];
-        if (detected) roleSelect.value = detected;
+        var norm = emailInput.value.trim().toLowerCase();
+        var detected = emailRoleMap[norm];
+        if (detected) {
+          roleSelect.value = detected;
+        } else if (findEmployeeByEmail(norm)) {
+          roleSelect.value = 'employee';
+        }
         emailInput.classList.remove('input-error');
         emailError.classList.remove('show');
       });
@@ -882,8 +909,9 @@
       // Get Started → validate then navigate to dashboard
       cta.addEventListener('click', function () {
         var valid = true;
+        var cleanEmail = emailInput.value.trim().toLowerCase();
 
-        if (!emailInput.value.trim() || !isValidEmail(emailInput.value.trim())) {
+        if (!cleanEmail || !isValidEmail(cleanEmail)) {
           emailInput.classList.add('input-error');
           emailError.classList.add('show');
           valid = false;
@@ -899,10 +927,19 @@
         // Show loading state
         cta.classList.add('loading');
 
-        // Simulate a brief auth delay, then redirect to dashboard with role
+        // Resolve user identity from demo role map or persisted employee directory
         setTimeout(function () {
-          var role = document.getElementById('role').value;
+          var matchedEmp = findEmployeeByEmail(cleanEmail);
+          var role = emailRoleMap[cleanEmail] || (matchedEmp ? 'employee' : document.getElementById('role').value);
           sessionStorage.setItem('hyna_role', role);
+          sessionStorage.setItem('hyna_user_email', cleanEmail);
+          if (matchedEmp) {
+            sessionStorage.setItem('hyna_user_id', matchedEmp.id);
+            sessionStorage.setItem('hyna_user_name', matchedEmp.name);
+          } else {
+            sessionStorage.removeItem('hyna_user_id');
+            sessionStorage.setItem('hyna_user_name', role === 'ceo' ? 'CEO / Admin' : cleanEmail.split('@')[0]);
+          }
           window.location.href = 'dashboard.html';
         }, 800);
       });
