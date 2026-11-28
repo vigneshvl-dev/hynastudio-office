@@ -170,6 +170,37 @@
       color: #fff
     }
 
+    /* Mascot centered */
+    .mascot-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mascot {
+      width: 240px;
+      height: auto;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,.3));
+      animation: zoomBounce 1.2s cubic-bezier(.22,1,.36,1) .4s both, mascotFloat 4s ease-in-out 1.6s infinite;
+    }
+
+    @keyframes zoomBounce {
+      0% { opacity: 0; transform: scale(1.8); }
+      60% { opacity: 1; transform: scale(.92); }
+      80% { transform: scale(1.04); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes mascotFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
     .visual .copy small {
       display: block;
       font-size: 15px;
@@ -735,6 +766,9 @@
       <div class="logo-wrap">
         <img class="logo-img" src="assets/hyna_logo.jpg" alt="HynaStudio">
         <span class="logo-text">HYNA<span>STUDIO</span></span>
+      </div>
+      <div class="mascot-wrap">
+        <img class="mascot" src="assets/mascot.png" alt="HynaStudio Mascot">
       </div>
       <div class="copy">
         <small>Welcome back</small>
