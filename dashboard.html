@@ -1511,7 +1511,7 @@
         <div class="av" style="width:34px;height:34px"><img src="assets/hyna_logo.jpg" alt="HynaStudio"></div>
         <div class="nm" style="font-size:12px;flex:1">
           HynaStudio
-          <small style="font-size:10px;color:var(--ac);font-weight:700">Office of the CEO</small>
+          <small id="side-role-label" style="font-size:10px;color:var(--ac);font-weight:700">Enterprise Core</small>
         </div>
         <button class="logout-btn" onclick="window.location.href='index.html'" title="Logout">⏻</button>
       </div>
@@ -1732,7 +1732,7 @@
           </div>
         </section>
 
-        <!-- SECTION: Projects -->
+        <!-- SECTION: Projects (CEO View vs Employee Assigned Workflows View) -->
         <section id="v-projects" class="hide">
           <div id="proj-list-shell">
             <!-- Top Bar: Title, Team Avatars / XP Summary, Invite, + New Project -->
@@ -1818,6 +1818,8 @@
 
             <!-- Cards / Kanban / Calendar Alternate Views -->
             <div id="proj-view-alt" class="hide"></div>
+          <div id="projects-view-container">
+            <!-- Dynamically populated based on userRole: CEO Portfolio Table or Employee My Workflows -->
           </div>
 
           <!-- Project Workspace / Detail View (CEO Monitoring + Module Management OR Employee Checklist) -->
@@ -2070,9 +2072,333 @@
     // Filter nav based on role
     const nav = userRole === 'ceo' ? allNav : allNav.filter(n => limitedNav.includes(n[0]));
 
-    // Update badge text
+    // Update badge text and footer role label
     const badgeEl = document.querySelector('.badge');
     if (badgeEl) badgeEl.innerHTML = '● ' + (roleBadgeMap[userRole] || 'EMPLOYEE');
+    const sideRoleEl = document.getElementById('side-role-label');
+    if (sideRoleEl) sideRoleEl.textContent = userRole === 'ceo' ? 'Office of the CEO' : 'Staff Portal • ' + (roleBadgeMap[userRole] || 'Employee');
+
+    // Render appropriate dashboard content based on role
+    function initDashboardView() {
+      const vDash = document.getElementById("v-dashboard");
+      if (!vDash) return;
+
+      if (userRole === "ceo") {
+        vDash.innerHTML = `
+          <div class="hd">
+            <div>
+              <h1>CEO Executive Suite <span class="badge" style="background:#6d4de0;color:#fff;border:none">OFFICE OF THE CEO</span></h1>
+              <div class="sub" id="live-time">Enterprise Strategic Operations &amp; High-Level Governance</div>
+            </div>
+            <div class="top">
+              <button class="pill p" onclick="openExecutiveDirectiveModal()">⚡ Issue Directive</button>
+              <button class="pill" onclick="openReviewApprovalsModal()">✓ Executive Approvals <span class="tag ok" style="margin-left:4px">3</span></button>
+              <button class="pill p" onclick="openBroadcastModal()">📢 Global Broadcast</button>
+            </div>
+          </div>
+
+          <!-- CEO Primary KPI Metrics -->
+          <div class="grid g5">
+            <div class="card stat">
+              <span class="ic ok">📈</span>
+              <small>TOTAL VALUATION / ARR</small>
+              <b style="color:var(--ac)">₹1.84 Cr</b>
+              <span class="ok sub">↑ 18.2% YoY Growth</span>
+            </div>
+            <div class="card stat">
+              <span class="ic ok">💰</span>
+              <small>MONTHLY RUNWAY / CASH</small>
+              <b>₹48.5 L</b>
+              <span class="sub">14.2 Mos Runway</span>
+            </div>
+            <div class="card stat">
+              <span class="ic">👥</span>
+              <small>TOTAL ORG HEADCOUNT</small>
+              <b id="stat-headcount">18</b>
+              <span class="sub" id="stat-div">4 Business Units</span>
+            </div>
+            <div class="card stat">
+              <span class="ic ok">▣</span>
+              <small>STRATEGIC PROJECTS</small>
+              <b>6 Active</b>
+              <span class="ok sub">100% On Schedule</span>
+            </div>
+            <div class="card stat">
+              <span class="ic wr">⚡</span>
+              <small>EXECUTIVE PENDING</small>
+              <b style="color:var(--wr)">3 Items</b>
+              <span class="wr sub">Action Required</span>
+            </div>
+          </div>
+
+          <div class="grid g2" style="margin-top:20px">
+            <div class="grid">
+              <!-- Strategic Decisions & Approvals -->
+              <div class="card">
+                <div class="hd">
+                  <div>
+                    <h2>Executive Decision Queue</h2>
+                    <div class="sub">Matters requiring Chief Executive Officer sign-off and authorization</div>
+                  </div>
+                  <span class="tag wr">3 PENDING</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+                  <div class="row" style="margin-top:0;justify-content:space-between">
+                    <div class="gr">
+                      <div style="font-weight:700">Q2 Infrastructure &amp; Cloud Expansion Budget</div>
+                      <div class="sub">CAPEX Allocation • ₹4,50,000 • Requested by VP Engineering</div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                      <button class="pill ok" onclick="toast('Budget Allocation Approved by CEO');this.closest('.row').remove()">Approve</button>
+                      <button class="pill er" onclick="toast('Sent for review');this.closest('.row').remove()">Review</button>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:0;justify-content:space-between">
+                    <div class="gr">
+                      <div style="font-weight:700">Executive Hire: Head of Product Design</div>
+                      <div class="sub">Offer Authorization • ₹22 LPA • HR Committee Recommendation</div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                      <button class="pill ok" onclick="toast('Offer Authorized by CEO');this.closest('.row').remove()">Sign Off</button>
+                      <button class="pill er" onclick="toast('Requested revisions');this.closest('.row').remove()">Revise</button>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:0;justify-content:space-between">
+                    <div class="gr">
+                      <div style="font-weight:700">Enterprise SLA Partnership Agreement: Tier-1 Client</div>
+                      <div class="sub">Legal Contract Authorization • ₹42,00,000 Annual Value</div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                      <button class="pill ok" onclick="toast('Contract Signed by CEO');this.closest('.row').remove()">Authorize</button>
+                      <button class="pill er" onclick="toast('Legal queried');this.closest('.row').remove()">Hold</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bulletins & Directives -->
+              <div class="card">
+                <div class="hd">
+                  <div>
+                    <h2>CEO Directives &amp; Enterprise Vision</h2>
+                    <div class="sub">Official executive releases, company missions, and corporate guidelines</div>
+                  </div>
+                  <button class="pill p" onclick="openExecutiveDirectiveModal()">+ Issue Directive</button>
+                </div>
+                <div id="bulletin-list">
+                  <div class="row" style="border-radius:14px;display:block">
+                    <span class="tag" style="background:rgba(109,77,224,0.1);color:var(--ac);border-color:rgba(109,77,224,0.3)">EXECUTIVE DIRECTIVE #24</span>
+                    <span class="tag ok">ACTIVE</span>
+                    <span class="sub" style="float:right">Nov 28, 2026</span>
+                    <div class="nm" style="margin-top:8px">FY27 Product Scaling &amp; AI Integration Mandate
+                      <small style="color:var(--mu);margin-top:4px">All department leads are requested to submit quarterly automation and efficiency benchmarks by Friday.</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid" style="align-content:start">
+              <div class="card">
+                <div class="hd">
+                  <h2>Division Performance</h2>
+                  <button class="pill" onclick="toast('Division metrics synchronized')">Audit</button>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:12px;margin-top:10px">
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px">
+                      <span>Engineering &amp; Platform</span>
+                      <span class="ok">96% SLA</span>
+                    </div>
+                    <div style="width:100%;height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden">
+                      <div style="width:96%;height:100%;background:var(--ok)"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px">
+                      <span>Product Design &amp; Studio</span>
+                      <span class="ok">100% On-Target</span>
+                    </div>
+                    <div style="width:100%;height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden">
+                      <div style="width:100%;height:100%;background:var(--ac)"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px">
+                      <span>Enterprise Growth &amp; Sales</span>
+                      <span class="ok">112% Quota</span>
+                    </div>
+                    <div style="width:100%;height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden">
+                      <div style="width:100%;height:100%;background:#3b82f6"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="hd">
+                  <h2>CEO Schedule &amp; Key Milestones</h2>
+                  <span class="tag">TODAY</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+                  <div class="row" style="margin-top:0">
+                    <span class="ic ok">🕒</span>
+                    <div class="gr">
+                      <div style="font-size:13px;font-weight:700">Board of Directors Strategy Sync</div>
+                      <div class="sub">11:30 AM • Executive Boardroom</div>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:0">
+                    <span class="ic">🤝</span>
+                    <div class="gr">
+                      <div style="font-size:13px;font-weight:700">Investor Briefing: Series A Milestone</div>
+                      <div class="sub">03:00 PM • Video Conference</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        // Employee Dashboard: Personal Work Overview, Attendance Check-in, CEO Directives, Leave Balance
+        vDash.innerHTML = `
+          <div class="hd">
+            <div>
+              <h1>Employee Workspace <span class="badge" style="background:rgba(16,185,129,0.12);color:#059669;border-color:rgba(16,185,129,0.3)">ACTIVE MEMBER</span></h1>
+              <div class="sub">Assigned Tasks, Shifts, Attendance &amp; Corporate Announcements</div>
+            </div>
+            <div class="top">
+              <button class="pill p" onclick="openVerifyAttendanceSwipe()">◷ Check In Shift</button>
+              <button class="pill" onclick="openLeaveModal()">▤ Apply Leave</button>
+            </div>
+          </div>
+
+          <!-- Employee KPI Stats -->
+          <div class="grid g5">
+            <div class="card stat">
+              <span class="ic ok">✓</span>
+              <small>ACTIVE WORKFLOWS</small>
+              <b style="color:var(--ac)">7 Active</b>
+              <span class="ok sub">Assigned by CEO</span>
+            </div>
+            <div class="card stat">
+              <span class="ic ok">◷</span>
+              <small>SHIFT ATTENDANCE</small>
+              <b class="ok">On Time</b>
+              <span class="sub">9:00 AM - 6:00 PM</span>
+            </div>
+            <div class="card stat">
+              <span class="ic wr">▤</span>
+              <small>AVAILABLE LEAVES</small>
+              <b>18 Days</b>
+              <span class="sub">Casual &amp; Medical</span>
+            </div>
+            <div class="card stat">
+              <span class="ic">📂</span>
+              <small>ASSIGNED FOLDERS</small>
+              <b>4 Folders</b>
+              <span class="sub">Client &amp; Tasks</span>
+            </div>
+            <div class="card stat">
+              <span class="ic ok">📢</span>
+              <small>CEO DIRECTIVES</small>
+              <b style="color:var(--ac)">1 New</b>
+              <span class="ok sub">Mandatory Read</span>
+            </div>
+          </div>
+
+          <div class="grid g2" style="margin-top:20px">
+            <div class="grid">
+              <!-- Today Assigned Tasks & Deliverables -->
+              <div class="card">
+                <div class="hd">
+                  <div>
+                    <h2>Today's Deliverables &amp; Workflows</h2>
+                    <div class="sub">Tasks committed for your current sprint cycle</div>
+                  </div>
+                  <button class="pill p" onclick="go('projects', 'Projects')">Open Projects →</button>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+                  <div class="row" style="margin-top:0;justify-content:space-between">
+                    <div class="gr">
+                      <div style="font-weight:700">Email Responder Automation</div>
+                      <div class="sub">Folder: Task Automation • Integration: Notion, Slack</div>
+                    </div>
+                    <span class="tag ok">IN PROGRESS</span>
+                  </div>
+                  <div class="row" style="margin-top:0;justify-content:space-between">
+                    <div class="gr">
+                      <div style="font-weight:700">Billing &amp; Invoicing Reconciliation</div>
+                      <div class="sub">Folder: Billing • Tier-1 Client Invoices</div>
+                    </div>
+                    <span class="tag">ACTIVE</span>
+                  </div>
+                  <div class="row" style="margin-top:0;justify-content:space-between">
+                    <div class="gr">
+                      <div style="font-weight:700">Weekly Performance Sync Notes</div>
+                      <div class="sub">Folder: Notes &amp; Highlights • High Priority</div>
+                    </div>
+                    <span class="tag wr">DUE TODAY</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bulletins & Directives -->
+              <div class="card">
+                <div class="hd">
+                  <div>
+                    <h2>Corporate Announcements &amp; Directives</h2>
+                    <div class="sub">Official announcements published by Office of the CEO</div>
+                  </div>
+                </div>
+                <div class="row" style="border-radius:14px;display:block">
+                  <span class="tag" style="background:rgba(109,77,224,0.1);color:var(--ac);border-color:rgba(109,77,224,0.3)">EXECUTIVE DIRECTIVE #24</span>
+                  <span class="tag ok">ACTIVE</span>
+                  <span class="sub" style="float:right">Nov 28, 2026</span>
+                  <div class="nm" style="margin-top:8px">FY27 Product Scaling &amp; AI Integration Mandate
+                    <small style="color:var(--mu);margin-top:4px">All department team members are requested to complete workflow optimization items by Friday.</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid" style="align-content:start">
+              <!-- Shift & Attendance Quick Panel -->
+              <div class="card">
+                <div class="hd">
+                  <h2>Today's Shift Status</h2>
+                  <span class="tag ok">PRESENT</span>
+                </div>
+                <div style="padding:14px 0 8px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">
+                    <span class="sub">Check-in:</span>
+                    <span style="font-weight:700">09:05 AM (On Time)</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">
+                    <span class="sub">Shift Hours:</span>
+                    <span style="font-weight:700">8h 55m remaining</span>
+                  </div>
+                  <button class="pill p" style="width:100%;justify-content:center;margin-top:10px" onclick="openVerifyAttendanceSwipe()">◷ Verify Shift Check-in</button>
+                </div>
+              </div>
+
+              <!-- Quick Links -->
+              <div class="card">
+                <div class="hd">
+                  <h2>Quick Shortcuts</h2>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+                  <button class="pill" style="justify-content:flex-start;width:100%" onclick="go('projects', 'Projects')">▣ My Workflows &amp; Folders</button>
+                  <button class="pill" style="justify-content:flex-start;width:100%" onclick="openLeaveModal()">▤ Submit Leave Application</button>
+                  <button class="pill" style="justify-content:flex-start;width:100%" onclick="go('attendance', 'Attendance')">◷ View Attendance Logs</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
     const known = ["dashboard", "projects", "employees", "attendance", "leaves", "payroll"];
 
     $("#nav").innerHTML = nav.map(n => `<button class="nav" data-k="${n[0]}"><span>${n[1]}</span>${n[2]}</button>`).join("");
@@ -2092,6 +2418,12 @@
       const id = known.includes(k) ? k : "other";
       const el = $("#v-" + id);
       if (el) el.classList.remove("hide");
+      if (id === "dashboard") {
+        initDashboardView();
+      }
+      if (id === "projects") {
+        initProjectsView();
+      }
       if (id === "other") $("#otn").textContent = l || k.toUpperCase();
       $$(".nav").forEach(b => b.classList.toggle("on", b.dataset.k === k));
       const container = $(".content-area");
@@ -2108,6 +2440,7 @@
     }
 
     $$(".nav").forEach(b => b.onclick = () => go(b.dataset.k, b.textContent.trim()));
+    initDashboardView();
     go("dashboard", "Dashboard");
 
     /* Toast helper */
@@ -2262,15 +2595,16 @@
 
     function renderEmployees() {
       const activeCount = E.length;
-      $("#emp-active-count").textContent = activeCount;
-      $("#stat-headcount").textContent = activeCount;
+      const empCountEl = $("#emp-active-count"); if (empCountEl) empCountEl.textContent = activeCount;
+      const statHeadEl = $("#stat-headcount"); if (statHeadEl) statHeadEl.textContent = activeCount;
 
       const depts = new Set(E.map(e => e[3]));
-      $("#stat-div").textContent = `${depts.size} Division${depts.size === 1 ? '' : 's'}`;
+      const statDivEl = $("#stat-div"); if (statDivEl) statDivEl.textContent = `${depts.size} Division${depts.size === 1 ? '' : 's'}`;
 
       const tbody = $("#emp");
       const emptyTable = $("#emp-empty-table");
       const cardWrapper = $("#emp-cards-wrapper");
+      if (!tbody || !emptyTable || !cardWrapper) return;
 
       if (activeCount === 0) {
         tbody.innerHTML = "";
@@ -2597,6 +2931,7 @@
     if ($("#ptabs") && $("#pbody")) {
       $("#ptabs").innerHTML = Object.keys(T).map(k => `<button class="pill" data-t="${k}">${k}</button>`).join("");
       function pt(k) {
+        if (!$("#pbody")) return;
         $("#pbody").innerHTML = T[k];
         $$("#ptabs .pill").forEach(b => b.classList.toggle("on", b.dataset.t === k));
       }
@@ -4708,10 +5043,10 @@
 
       resetSwipeKnob();
       activeSwipeCallback = () => {
-        $("#att-present-count").textContent = "1";
-        $("#att-ontime-count").textContent = "1";
-        $("#stat-present").textContent = "1";
-        $("#stat-present-rate").textContent = "100.0% rate";
+        const attPres = $("#att-present-count"); if (attPres) attPres.textContent = "1";
+        const attOn = $("#att-ontime-count"); if (attOn) attOn.textContent = "1";
+        const statPres = $("#stat-present"); if (statPres) statPres.textContent = "1";
+        const statRate = $("#stat-present-rate"); if (statRate) statRate.textContent = "100.0% rate";
         toast(`Attendance verified for ${emp[1]} at ${timeStr}`);
       };
 
